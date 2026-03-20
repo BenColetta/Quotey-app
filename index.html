@@ -3,669 +3,1807 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Quotey">
-<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#ffffff">
 <title>Quotey</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --primary: #1a1a1a;
-    --accent: #2d6a4f;
-    --accent-light: #40916c;
-    --bg: #f8f8f6;
-    --card: #ffffff;
-    --border: #e8e8e4;
-    --text: #1a1a1a;
-    --text-muted: #888880;
-    --red: #c0392b;
-    --amber: #e67e22;
-    --green: #27ae60;
-    --safe-top: env(safe-area-inset-top, 0px);
-    --safe-bottom: env(safe-area-inset-bottom, 0px);
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif; background: var(--bg); color: var(--text); height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
-/* AUTH SCREEN */
-#auth-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100dvh; padding: 32px 24px; gap: 24px; background: var(–bg); }
-#auth-screen .logo { font-size: 48px; font-weight: 700; letter-spacing: -2px; color: var(–primary); }
-#auth-screen .logo span { color: var(–accent); }
-#auth-screen .subtitle { color: var(–text-muted); font-size: 15px; text-align: center; }
-#auth-screen input { width: 100%; padding: 16px; border: 1.5px solid var(–border); border-radius: 12px; font-size: 17px; background: var(–card); outline: none; text-align: center; letter-spacing: 2px; }
-#auth-screen input:focus { border-color: var(–accent); }
-#auth-screen .btn-primary { width: 100%; padding: 16px; background: var(–accent); color: white; border: none; border-radius: 12px; font-size: 17px; font-weight: 600; cursor: pointer; }
-#auth-screen .error { color: var(–red); font-size: 14px; text-align: center; }
-#auth-screen .setup-link { color: var(–accent); font-size: 14px; text-decoration: underline; cursor: pointer; }
+:root {
+–white: #ffffff;
+–off: #f7f7f5;
+–surface: #f0efec;
+–border: #e2e0db;
+–border2: #d0cdc7;
+–text: #1a1a18;
+–text2: #6b6860;
+–text3: #9e9b95;
+–accent: #1a1a18;
+–blue: #2563eb;
+–blue-light: #eff6ff;
+–blue-border: #bfdbfe;
+–green: #16a34a;
+–green-light: #f0fdf4;
+–green-border: #bbf7d0;
+–amber: #d97706;
+–amber-light: #fffbeb;
+–amber-border: #fde68a;
+–red: #dc2626;
+–red-light: #fef2f2;
+–red-border: #fecaca;
+–slate: #64748b;
+–radius-sm: 8px;
+–radius: 12px;
+–radius-lg: 16px;
+–radius-xl: 20px;
+–shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+–shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+–shadow-lg: 0 8px 24px rgba(0,0,0,0.10), 0 4px 8px rgba(0,0,0,0.06);
+}
 
-/* FIREBASE SETUP SCREEN */
-#setup-screen { display: none; flex-direction: column; padding: 32px 24px; gap: 16px; height: 100dvh; overflow-y: auto; background: var(–bg); }
-#setup-screen h2 { font-size: 22px; font-weight: 700; }
-#setup-screen p { font-size: 14px; color: var(–text-muted); line-height: 1.6; }
-#setup-screen input { width: 100%; padding: 14px; border: 1.5px solid var(–border); border-radius: 10px; font-size: 14px; background: var(–card); outline: none; font-family: monospace; }
-#setup-screen input:focus { border-color: var(–accent); }
-#setup-screen label { font-size: 13px; font-weight: 600; color: var(–text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-#setup-screen .btn-primary { width: 100%; padding: 16px; background: var(–accent); color: white; border: none; border-radius: 12px; font-size: 17px; font-weight: 600; cursor: pointer; }
-#setup-screen .back-link { color: var(–accent); font-size: 14px; text-decoration: underline; cursor: pointer; text-align: center; }
+html, body {
+height: 100%;
+background: var(–off);
+color: var(–text);
+font-family: ‘Geist Mono’, monospace;
+overflow: hidden;
+}
 
-/* MAIN APP */
-#app { display: none; flex-direction: column; height: 100dvh; }
+/* ── LAYOUT ── */
+.app {
+display: flex;
+flex-direction: column;
+height: 100dvh;
+max-width: 430px;
+margin: 0 auto;
+background: var(–white);
+position: relative;
+overflow: hidden;
+}
 
-/* HEADER */
-.header { padding: calc(var(–safe-top) + 12px) 16px 12px; background: var(–card); border-bottom: 1px solid var(–border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
-.header-title { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
-.header-biz { font-size: 12px; color: var(–text-muted); margin-top: 1px; }
-.biz-toggle { display: flex; gap: 6px; }
-.biz-btn { padding: 6px 10px; border-radius: 8px; border: 1.5px solid var(–border); font-size: 12px; font-weight: 600; background: var(–bg); cursor: pointer; color: var(–text-muted); }
-.biz-btn.active { background: var(–accent); border-color: var(–accent); color: white; }
+/* ── HEADER ── */
+.header {
+background: var(–white);
+padding: calc(env(safe-area-inset-top, 12px) + 10px) 20px 0;
+border-bottom: 1px solid var(–border);
+flex-shrink: 0;
+z-index: 10;
+}
+.header-top {
+display: flex;
+justify-content: space-between;
+align-items: flex-start;
+padding-bottom: 14px;
+}
+.logo {
+display: flex;
+flex-direction: column;
+}
+.logo-name {
+font-family: ‘Instrument Serif’, serif;
+font-size: 26px;
+color: var(–text);
+letter-spacing: -0.5px;
+line-height: 1;
+}
+.logo-sub {
+font-size: 9px;
+color: var(–text3);
+letter-spacing: 1.5px;
+text-transform: uppercase;
+margin-top: 3px;
+}
+.header-kpi {
+text-align: right;
+}
+.kpi-val {
+font-family: ‘Instrument Serif’, serif;
+font-size: 22px;
+color: var(–text);
+line-height: 1;
+}
+.kpi-lbl {
+font-size: 9px;
+color: var(–text3);
+text-transform: uppercase;
+letter-spacing: 1px;
+margin-top: 2px;
+}
 
-/* CONTENT */
-.content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 0 0 16px; }
+/* Business selector */
+.biz-tabs {
+display: flex;
+gap: 6px;
+padding-bottom: 14px;
+}
+.biz-tab {
+flex: 1;
+padding: 7px 10px;
+border-radius: var(–radius-sm);
+font-size: 9px;
+letter-spacing: 0.8px;
+text-transform: uppercase;
+font-weight: 500;
+text-align: center;
+cursor: pointer;
+border: 1px solid var(–border);
+color: var(–text3);
+background: var(–white);
+transition: all 0.15s;
+}
+.biz-tab.active {
+background: var(–text);
+color: var(–white);
+border-color: var(–text);
+}
 
-/* TAB BAR */
-.tab-bar { display: flex; background: var(–card); border-top: 1px solid var(–border); padding-bottom: var(–safe-bottom); flex-shrink: 0; }
-.tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px 4px; gap: 3px; cursor: pointer; border: none; background: none; color: var(–text-muted); font-size: 10px; font-weight: 500; }
-.tab.active { color: var(–accent); }
-.tab svg { width: 22px; height: 22px; }
+/* ── NAV TABS ── */
+.nav {
+display: flex;
+background: var(–white);
+border-top: 1px solid var(–border);
+padding-bottom: env(safe-area-inset-bottom, 0px);
+flex-shrink: 0;
+}
+.nav-item {
+flex: 1;
+display: flex;
+flex-direction: column;
+align-items: center;
+padding: 10px 4px 10px;
+cursor: pointer;
+position: relative;
+gap: 3px;
+transition: all 0.15s;
+}
+.nav-icon { font-size: 20px; line-height: 1; }
+.nav-label {
+font-size: 9px;
+letter-spacing: 0.8px;
+text-transform: uppercase;
+color: var(–text3);
+font-weight: 500;
+}
+.nav-item.active .nav-label { color: var(–text); }
+.nav-item.active .nav-icon { filter: none; }
+.nav-dot {
+position: absolute;
+top: 8px;
+right: calc(50% - 14px);
+width: 7px; height: 7px;
+border-radius: 50%;
+background: var(–red);
+border: 1.5px solid var(–white);
+display: none;
+}
+.nav-dot.show { display: block; }
 
-/* TAB PANELS */
-.tab-panel { display: none; }
-.tab-panel.active { display: block; }
+/* ── CONTENT ── */
+.content {
+flex: 1;
+overflow-y: auto;
+-webkit-overflow-scrolling: touch;
+background: var(–off);
+}
+.view { display: none; padding: 16px; }
+.view.active { display: block; }
 
-/* CARDS */
-.section-header { padding: 20px 16px 8px; display: flex; justify-content: space-between; align-items: center; }
-.section-title { font-size: 18px; font-weight: 700; }
-.btn-add { background: var(–accent); color: white; border: none; border-radius: 20px; padding: 8px 16px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+/* ── CARDS ── */
+.card {
+background: var(–white);
+border: 1px solid var(–border);
+border-radius: var(–radius-lg);
+padding: 16px;
+margin-bottom: 10px;
+box-shadow: var(–shadow);
+animation: fadeIn 0.2s ease;
+}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
-.card { background: var(–card); border-radius: 12px; margin: 0 16px 10px; padding: 14px 16px; border: 1px solid var(–border); }
-.card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
-.card-name { font-size: 16px; font-weight: 600; }
-.card-meta { font-size: 13px; color: var(–text-muted); margin-top: 2px; }
-.card-amount { font-size: 20px; font-weight: 700; color: var(–accent); white-space: nowrap; }
-.card-actions { display: flex; gap: 8px; margin-top: 10px; }
-.badge { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; }
-.badge-pending { background: #fff3e0; color: #e67e22; }
-.badge-sent { background: #e3f2fd; color: #1976d2; }
-.badge-accepted { background: #e8f5e9; color: #27ae60; }
-.badge-declined { background: #fce4ec; color: #c0392b; }
-.badge-scheduled { background: #e8f5e9; color: #27ae60; }
-.badge-completed { background: #ede7f6; color: #6d4c41; }
-.badge-invoice { background: #fff3e0; color: #e67e22; }
-.badge-lh { background: #e3f2fd; color: #1976d2; }
-.badge-bcl { background: #f3e5f5; color: #7b1fa2; }
+.card-top {
+display: flex;
+justify-content: space-between;
+align-items: flex-start;
+margin-bottom: 10px;
+}
+.card-name {
+font-family: ‘Instrument Serif’, serif;
+font-size: 19px;
+color: var(–text);
+line-height: 1.2;
+flex: 1;
+padding-right: 10px;
+}
+.card-price {
+font-family: ‘Instrument Serif’, serif;
+font-size: 20px;
+color: var(–text);
+white-space: nowrap;
+}
+.card-price.invoiced { color: var(–green); }
 
-.btn-sm { padding: 7px 12px; border-radius: 8px; border: 1.5px solid var(–border); font-size: 13px; font-weight: 600; cursor: pointer; background: var(–bg); color: var(–text); }
-.btn-sm.danger { border-color: var(–red); color: var(–red); }
-.btn-sm.primary { border-color: var(–accent); color: var(–accent); }
-.btn-sm.whatsapp { background: #25d366; border-color: #25d366; color: white; }
+.card-row {
+display: flex;
+gap: 6px;
+flex-wrap: wrap;
+margin-bottom: 8px;
+align-items: center;
+}
+.pill {
+font-size: 9px;
+padding: 3px 8px;
+border-radius: 20px;
+font-weight: 500;
+letter-spacing: 0.5px;
+text-transform: uppercase;
+white-space: nowrap;
+}
+.pill-type { background: var(–surface); color: var(–text2); border: 1px solid var(–border); }
+.pill-date { background: var(–surface); color: var(–text3); border: 1px solid var(–border); }
+.pill-followup { background: var(–amber-light); color: var(–amber); border: 1px solid var(–amber-border); }
+.pill-overdue { background: var(–red-light); color: var(–red); border: 1px solid var(–red-border); }
+.pill-won { background: var(–green-light); color: var(–green); border: 1px solid var(–green-border); }
+.pill-complete { background: var(–blue-light); color: var(–blue); border: 1px solid var(–blue-border); }
+.pill-biz { background: var(–text); color: var(–white); }
 
-/* STATS */
-.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 16px; }
-.stat-card { background: var(–card); border-radius: 12px; padding: 16px; border: 1px solid var(–border); }
-.stat-label { font-size: 12px; color: var(–text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-.stat-value { font-size: 26px; font-weight: 700; color: var(–accent); margin-top: 4px; }
-.stat-sub { font-size: 12px; color: var(–text-muted); margin-top: 2px; }
+.card-detail {
+font-size: 11px;
+color: var(–text2);
+margin-bottom: 4px;
+display: flex;
+align-items: flex-start;
+gap: 6px;
+}
+.card-detail-icon { flex-shrink: 0; }
+.card-notes {
+font-size: 11px;
+color: var(–text2);
+background: var(–off);
+border: 1px solid var(–border);
+border-radius: var(–radius-sm);
+padding: 9px 11px;
+margin: 8px 0;
+line-height: 1.6;
+}
 
-/* SCHEDULE */
-.day-block { margin: 0 16px 12px; }
-.day-label { font-size: 13px; font-weight: 700; color: var(–text-muted); text-transform: uppercase; letter-spacing: 0.5px; padding: 8px 0 4px; }
-.day-empty { font-size: 13px; color: var(–text-muted); padding: 8px 0; font-style: italic; }
+/* Photos */
+.card-photos {
+display: flex;
+gap: 6px;
+flex-wrap: wrap;
+margin: 8px 0;
+}
+.photo-thumb {
+width: 64px; height: 64px;
+border-radius: var(–radius-sm);
+object-fit: cover;
+border: 1px solid var(–border);
+cursor: pointer;
+}
+.photo-add {
+width: 64px; height: 64px;
+border-radius: var(–radius-sm);
+border: 1.5px dashed var(–border2);
+display: flex;
+align-items: center;
+justify-content: center;
+cursor: pointer;
+color: var(–text3);
+font-size: 24px;
+background: var(–off);
+transition: all 0.15s;
+}
+.photo-add:active { background: var(–surface); }
 
-/* FORM / MODAL */
-.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: flex-end; }
-.modal-overlay.open { display: flex; }
-.modal { background: var(–card); border-radius: 20px 20px 0 0; padding: 20px 20px calc(var(–safe-bottom) + 20px); width: 100%; max-height: 92dvh; overflow-y: auto; }
-.modal-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
-.form-group { margin-bottom: 14px; }
-.form-label { font-size: 13px; font-weight: 600; color: var(–text-muted); margin-bottom: 5px; display: block; text-transform: uppercase; letter-spacing: 0.3px; }
-.form-input { width: 100%; padding: 12px 14px; border: 1.5px solid var(–border); border-radius: 10px; font-size: 16px; background: var(–bg); outline: none; color: var(–text); }
-.form-input:focus { border-color: var(–accent); }
-select.form-input { appearance: none; }
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.modal-actions { display: flex; gap: 10px; margin-top: 8px; }
-.btn-cancel { flex: 1; padding: 14px; border: 1.5px solid var(–border); border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; background: var(–bg); }
-.btn-save { flex: 2; padding: 14px; background: var(–accent); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; }
+/* Actions */
+.card-actions {
+display: flex;
+gap: 6px;
+flex-wrap: wrap;
+margin-top: 12px;
+padding-top: 12px;
+border-top: 1px solid var(–border);
+}
+.btn {
+font-family: ‘Geist Mono’, monospace;
+font-size: 10px;
+font-weight: 500;
+letter-spacing: 0.5px;
+text-transform: uppercase;
+padding: 8px 12px;
+border-radius: var(–radius-sm);
+border: none;
+cursor: pointer;
+transition: all 0.12s;
+display: flex;
+align-items: center;
+gap: 4px;
+}
+.btn:active { transform: scale(0.96); }
+.btn-primary { background: var(–text); color: var(–white); }
+.btn-primary:hover { background: #333; }
+.btn-success { background: var(–green-light); color: var(–green); border: 1px solid var(–green-border); }
+.btn-danger { background: var(–red-light); color: var(–red); border: 1px solid var(–red-border); }
+.btn-ghost { background: var(–off); color: var(–text2); border: 1px solid var(–border); }
+.btn-blue { background: var(–blue-light); color: var(–blue); border: 1px solid var(–blue-border); }
+.btn-whatsapp { background: #25D366; color: white; }
+.btn-amber { background: var(–amber-light); color: var(–amber); border: 1px solid var(–amber-border); }
 
-/* SYNC INDICATOR */
-.sync-dot { width: 8px; height: 8px; border-radius: 50%; background: var(–green); display: inline-block; margin-left: 6px; }
-.sync-dot.syncing { background: var(–amber); animation: pulse 1s infinite; }
-.sync-dot.error { background: var(–red); }
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+/* ── ALERTS ── */
+.alert {
+display: flex;
+align-items: flex-start;
+gap: 10px;
+padding: 12px 14px;
+border-radius: var(–radius);
+margin-bottom: 10px;
+font-size: 11px;
+line-height: 1.5;
+border: 1px solid;
+}
+.alert-amber { background: var(–amber-light); color: var(–amber); border-color: var(–amber-border); }
+.alert-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+.alert-text strong { font-weight: 600; }
 
-.empty-state { text-align: center; padding: 48px 24px; color: var(–text-muted); }
-.empty-state .icon { font-size: 40px; margin-bottom: 12px; }
-.empty-state p { font-size: 15px; }
+/* ── SECTION HEADERS ── */
+.section-head {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 12px;
+margin-top: 4px;
+}
+.section-title {
+font-family: ‘Instrument Serif’, serif;
+font-size: 18px;
+color: var(–text);
+}
+.section-count {
+font-size: 10px;
+color: var(–text3);
+background: var(–surface);
+border: 1px solid var(–border);
+padding: 3px 8px;
+border-radius: 20px;
+}
+.section-divider {
+height: 1px;
+background: var(–border);
+margin: 16px 0;
+}
 
-.loading { text-align: center; padding: 48px; color: var(–text-muted); font-size: 15px; }
+/* ── EMPTY ── */
+.empty {
+text-align: center;
+padding: 60px 24px;
+}
+.empty-icon { font-size: 44px; margin-bottom: 14px; }
+.empty-title {
+font-family: ‘Instrument Serif’, serif;
+font-size: 20px;
+color: var(–text2);
+margin-bottom: 6px;
+}
+.empty-sub { font-size: 11px; color: var(–text3); line-height: 1.6; }
+
+/* ── STATS ── */
+.stats-grid {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 8px;
+margin-bottom: 12px;
+}
+.stat-card {
+background: var(–white);
+border: 1px solid var(–border);
+border-radius: var(–radius-lg);
+padding: 16px;
+box-shadow: var(–shadow);
+}
+.stat-val {
+font-family: ‘Instrument Serif’, serif;
+font-size: 30px;
+line-height: 1;
+margin-bottom: 4px;
+}
+.stat-lbl { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: var(–text3); }
+.stat-green { color: var(–green); }
+.stat-amber { color: var(–amber); }
+.stat-red { color: var(–red); }
+.stat-blue { color: var(–blue); }
+.stat-black { color: var(–text); }
+
+.rate-card {
+background: var(–white);
+border: 1px solid var(–border);
+border-radius: var(–radius-lg);
+padding: 16px;
+margin-bottom: 10px;
+box-shadow: var(–shadow);
+}
+.rate-head { display: flex; justify-content: space-between; font-size: 11px; color: var(–text2); margin-bottom: 8px; }
+.rate-head strong { font-size: 14px; color: var(–text); }
+.bar-track { height: 6px; background: var(–surface); border-radius: 3px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 3px; background: var(–text); transition: width 0.8s ease; }
+.rate-foot { display: flex; justify-content: space-between; margin-top: 14px; }
+.rate-item { font-size: 11px; color: var(–text2); }
+.rate-item span { display: block; font-family: ‘Instrument Serif’, serif; font-size: 20px; color: var(–text); margin-bottom: 1px; }
+
+.month-card {
+background: var(–white);
+border: 1px solid var(–border);
+border-radius: var(–radius);
+padding: 13px 15px;
+margin-bottom: 8px;
+display: flex;
+justify-content: space-between;
+align-items: center;
+box-shadow: var(–shadow);
+}
+.month-left { font-size: 12px; color: var(–text); }
+.month-sub { font-size: 10px; color: var(–text3); margin-top: 2px; }
+.month-right { font-family: ‘Instrument Serif’, serif; font-size: 20px; color: var(–text); }
+
+/* ── FORM SHEET ── */
+.overlay {
+position: fixed; inset: 0;
+background: rgba(0,0,0,0.4);
+z-index: 100;
+display: none;
+align-items: flex-end;
+backdrop-filter: blur(3px);
+}
+.overlay.open { display: flex; }
+.sheet {
+background: var(–white);
+border-radius: var(–radius-xl) var(–radius-xl) 0 0;
+width: 100%;
+max-width: 430px;
+margin: 0 auto;
+max-height: 94dvh;
+overflow-y: auto;
+-webkit-overflow-scrolling: touch;
+padding: 0 20px calc(30px + env(safe-area-inset-bottom, 0px));
+animation: sheetUp 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+position: relative;
+}
+@keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.sheet-handle {
+width: 36px; height: 4px;
+background: var(–border2);
+border-radius: 2px;
+margin: 14px auto 20px;
+}
+.sheet-title {
+font-family: ‘Instrument Serif’, serif;
+font-size: 22px;
+color: var(–text);
+margin-bottom: 20px;
+}
+
+/* Form elements */
+.field { margin-bottom: 14px; }
+.field-label {
+font-size: 9px;
+text-transform: uppercase;
+letter-spacing: 1px;
+color: var(–text3);
+font-weight: 500;
+margin-bottom: 6px;
+display: block;
+}
+.field-input {
+width: 100%;
+background: var(–white);
+border: 1px solid var(–border2);
+border-radius: var(–radius-sm);
+padding: 12px 13px;
+color: var(–text);
+font-family: ‘Geist Mono’, monospace;
+font-size: 13px;
+outline: none;
+transition: border-color 0.15s;
+-webkit-appearance: none;
+appearance: none;
+}
+.field-input:focus { border-color: var(–text); }
+.field-input::placeholder { color: var(–text3); }
+select.field-input { cursor: pointer; background-image: url(“data:image/svg+xml,%3Csvg xmlns=‘http://www.w3.org/2000/svg’ width=‘12’ height=‘8’ viewBox=‘0 0 12 8’%3E%3Cpath d=‘M1 1l5 5 5-5’ stroke=’%236b6860’ stroke-width=‘1.5’ fill=‘none’ stroke-linecap=‘round’/%3E%3C/svg%3E”); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+textarea.field-input { resize: none; min-height: 80px; line-height: 1.6; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.field-hint { font-size: 10px; color: var(–text3); margin-top: 4px; }
+
+.form-btn {
+font-family: ‘Geist Mono’, monospace;
+font-size: 12px;
+font-weight: 500;
+letter-spacing: 0.5px;
+text-transform: uppercase;
+padding: 15px;
+border-radius: var(–radius);
+border: none;
+cursor: pointer;
+width: 100%;
+margin-top: 8px;
+transition: all 0.15s;
+}
+.form-btn:active { transform: scale(0.98); }
+.form-btn-primary { background: var(–text); color: var(–white); }
+.form-btn-ghost { background: var(–off); color: var(–text2); border: 1px solid var(–border); margin-top: 6px; }
+
+/* ── FAB ── */
+.fab {
+position: fixed;
+bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+right: 20px;
+width: 52px; height: 52px;
+background: var(–text);
+color: var(–white);
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 26px;
+box-shadow: var(–shadow-lg);
+cursor: pointer;
+z-index: 50;
+border: none;
+transition: all 0.15s;
+line-height: 1;
+}
+.fab:active { transform: scale(0.92); }
+
+/* ── PHOTO VIEWER ── */
+.photo-viewer {
+position: fixed; inset: 0;
+background: rgba(0,0,0,0.95);
+z-index: 200;
+display: none;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+gap: 16px;
+padding: 20px;
+}
+.photo-viewer.open { display: flex; }
+.photo-viewer img { max-width: 100%; max-height: 75dvh; border-radius: var(–radius); object-fit: contain; }
+.photo-viewer-close {
+color: rgba(255,255,255,0.7);
+font-size: 12px;
+padding: 10px 24px;
+border: 1px solid rgba(255,255,255,0.2);
+border-radius: 30px;
+cursor: pointer;
+background: none;
+font-family: ‘Geist Mono’, monospace;
+letter-spacing: 0.5px;
+}
+
+/* ── COMPLETE MODAL ── */
+.modal {
+position: fixed; inset: 0;
+background: rgba(0,0,0,0.4);
+z-index: 150;
+display: none;
+align-items: center;
+justify-content: center;
+padding: 24px;
+backdrop-filter: blur(3px);
+}
+.modal.open { display: flex; }
+.modal-box {
+background: var(–white);
+border-radius: var(–radius-xl);
+padding: 24px;
+width: 100%;
+max-width: 360px;
+box-shadow: var(–shadow-lg);
+animation: fadeIn 0.2s ease;
+}
+.modal-title { font-family: ‘Instrument Serif’, serif; font-size: 20px; margin-bottom: 6px; }
+.modal-sub { font-size: 11px; color: var(–text2); margin-bottom: 20px; line-height: 1.5; }
+
+/* ── SCHEDULE ── */
+.sched-jump {
+display: flex;
+gap: 6px;
+margin-bottom: 16px;
+overflow-x: auto;
+-webkit-overflow-scrolling: touch;
+padding-bottom: 2px;
+scrollbar-width: none;
+}
+.sched-jump::-webkit-scrollbar { display: none; }
+.sched-jump-btn {
+font-family: ‘Geist Mono’, monospace;
+font-size: 10px;
+font-weight: 500;
+letter-spacing: 0.5px;
+text-transform: uppercase;
+padding: 7px 12px;
+border-radius: 20px;
+border: 1px solid var(–border);
+background: var(–white);
+color: var(–text2);
+cursor: pointer;
+white-space: nowrap;
+flex-shrink: 0;
+}
+.sched-jump-btn.active {
+background: var(–text);
+color: var(–white);
+border-color: var(–text);
+}
+.sched-day-block { margin-bottom: 20px; }
+.sched-day-label {
+display: flex;
+align-items: baseline;
+gap: 8px;
+margin-bottom: 10px;
+padding-bottom: 8px;
+border-bottom: 1px solid var(–border);
+}
+.sched-day-name {
+font-family: ‘Instrument Serif’, serif;
+font-size: 18px;
+color: var(–text);
+}
+.sched-day-date { font-size: 10px; color: var(–text3); text-transform: uppercase; letter-spacing: 0.8px; }
+.sched-today-badge {
+font-size: 9px;
+padding: 2px 7px;
+border-radius: 10px;
+background: var(–text);
+color: var(–white);
+letter-spacing: 0.5px;
+text-transform: uppercase;
+}
+.sched-empty-day {
+font-size: 11px;
+color: var(–text3);
+padding: 10px 0 4px;
+font-style: italic;
+}
+.sched-job {
+background: var(–white);
+border: 1px solid var(–border);
+border-radius: var(–radius);
+padding: 12px 14px;
+margin-bottom: 8px;
+box-shadow: var(–shadow);
+display: flex;
+gap: 12px;
+align-items: flex-start;
+}
+.sched-job-time {
+font-size: 12px;
+font-weight: 500;
+color: var(–text2);
+min-width: 38px;
+padding-top: 2px;
+flex-shrink: 0;
+}
+.sched-job-time.tbc { color: var(–text3); font-size: 10px; letter-spacing: 0.3px; }
+.sched-job-body { flex: 1; min-width: 0; }
+.sched-job-name { font-family: ‘Instrument Serif’, serif; font-size: 16px; color: var(–text); margin-bottom: 4px; }
+.sched-job-row { font-size: 10px; color: var(–text2); display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-bottom: 4px; }
+.sched-job-biz { font-size: 9px; padding: 2px 6px; border-radius: 10px; background: var(–text); color: var(–white); }
+.sched-no-jobs {
+text-align: center;
+padding: 40px 20px;
+color: var(–text3);
+}
+.sched-no-jobs-icon { font-size: 36px; margin-bottom: 10px; }
+.sched-no-jobs-text { font-family: ‘Instrument Serif’, serif; font-size: 16px; color: var(–text2); margin-bottom: 4px; }
+.sched-no-jobs-sub { font-size: 11px; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 0; }
+
+/* Desktop hint */
+@media (min-width: 431px) {
+.app { box-shadow: 0 0 0 1px var(–border), var(–shadow-lg); margin-top: 20px; height: calc(100dvh - 40px); border-radius: var(–radius-xl); }
+}
+
+/* ── FIREBASE SETUP SCREEN ── */
+#fb-setup-screen {
+position: fixed; inset: 0; z-index: 999;
+background: var(–white);
+display: flex; flex-direction: column;
+align-items: center; justify-content: center;
+padding: 32px 24px;
+gap: 14px;
+}
+#fb-setup-screen h2 {
+font-family: ‘Instrument Serif’, serif;
+font-size: 26px; color: var(–text);
+}
+#fb-setup-screen p {
+font-size: 11px; color: var(–text3);
+text-align: center; line-height: 1.6;
+max-width: 320px;
+}
+#fb-setup-screen input {
+width: 100%; max-width: 360px;
+padding: 12px 14px;
+border: 1px solid var(–border2);
+border-radius: var(–radius-sm);
+font-family: ‘Geist Mono’, monospace;
+font-size: 13px; outline: none;
+color: var(–text);
+}
+#fb-setup-screen input:focus { border-color: var(–text); }
+#fb-setup-screen button {
+width: 100%; max-width: 360px;
+padding: 15px;
+background: var(–text); color: var(–white);
+border: none; border-radius: var(–radius);
+font-family: ‘Geist Mono’, monospace;
+font-size: 12px; font-weight: 500;
+letter-spacing: 0.5px; text-transform: uppercase;
+cursor: pointer;
+}
+#fb-setup-screen .fb-label {
+font-size: 9px; text-transform: uppercase;
+letter-spacing: 1px; color: var(–text3);
+font-weight: 500; align-self: flex-start;
+margin-left: calc(50% - 180px);
+max-width: 360px; width: 100%;
+}
+#fb-setup-screen .fb-error {
+color: var(–red); font-size: 11px; text-align: center;
+}
+
+/* Sync indicator */
+#sync-status {
+display: inline-block;
+width: 7px; height: 7px;
+border-radius: 50%;
+background: var(–green);
+margin-left: 5px;
+vertical-align: middle;
+}
+#sync-status.syncing { background: var(–amber); }
+#sync-status.error { background: var(–red); }
 </style>
 
 </head>
 <body>
 
-<!-- AUTH SCREEN -->
+<!-- FIREBASE SETUP SCREEN (shown only first time) -->
 
-<div id="auth-screen">
-  <div>
-    <div class="logo">Quote<span>y</span></div>
-    <p style="text-align:center;color:var(--text-muted);font-size:13px;margin-top:4px;">Ben Coletta · Trade Job Manager</p>
-  </div>
-  <div style="width:100%;max-width:320px;display:flex;flex-direction:column;gap:12px;">
-    <p class="subtitle">Enter your access password to load your data</p>
-    <input type="password" id="auth-password" placeholder="Password" autocomplete="current-password">
-    <button class="btn-primary" onclick="doLogin()">Open Quotey</button>
-    <p id="auth-error" class="error" style="display:none"></p>
-    <p class="setup-link" onclick="showSetup()" style="text-align:center">First time? Set up Firebase →</p>
-  </div>
+<div id="fb-setup-screen" style="display:none">
+  <h2>Quotey</h2>
+  <p>First time setup. Enter your Firebase details below. You only do this once.</p>
+  <span class="fb-label">Firebase API Key</span>
+  <input type="text" id="fb-apikey" placeholder="AIzaSy...">
+  <span class="fb-label">Firebase Auth Domain</span>
+  <input type="text" id="fb-authdomain" placeholder="your-project.firebaseapp.com">
+  <span class="fb-label">Firebase Project ID</span>
+  <input type="text" id="fb-projectid" placeholder="your-project-id">
+  <span class="fb-label">Choose a Password for Quotey</span>
+  <input type="password" id="fb-password" placeholder="Something memorable">
+  <button onclick="fbSetupSave()">Save &amp; Open Quotey</button>
+  <p id="fb-setup-error" class="fb-error" style="display:none"></p>
 </div>
 
-<!-- SETUP SCREEN -->
+<!-- PASSWORD SCREEN (shown if password not in localStorage) -->
 
-<div id="setup-screen">
-  <h2>Firebase Setup</h2>
-  <p>Follow the guide PDF to create your free Firebase project, then paste your details below. You only do this once.</p>
-
-  <div class="form-group">
-    <label>Firebase API Key</label>
-    <input type="text" id="setup-apikey" placeholder="AIzaSy...">
-  </div>
-  <div class="form-group">
-    <label>Firebase Auth Domain</label>
-    <input type="text" id="setup-authdomain" placeholder="your-project.firebaseapp.com">
-  </div>
-  <div class="form-group">
-    <label>Firebase Project ID</label>
-    <input type="text" id="setup-projectid" placeholder="your-project-id">
-  </div>
-  <div class="form-group">
-    <label>Choose a Password for Quotey</label>
-    <input type="password" id="setup-password" placeholder="Something memorable">
-  </div>
-  <button class="btn-primary" onclick="saveSetup()">Save & Continue</button>
-  <p id="setup-error" style="color:var(--red);font-size:14px;text-align:center;display:none"></p>
-  <p class="back-link" onclick="showAuth()">← Back</p>
+<div id="fb-login-screen" style="display:none; position:fixed; inset:0; z-index:998; background:var(--white); flex-direction:column; align-items:center; justify-content:center; padding:32px 24px; gap:14px;">
+  <h2 style="font-family:'Instrument Serif',serif; font-size:26px; color:var(--text)">Quotey</h2>
+  <p style="font-size:11px; color:var(--text3); text-align:center; line-height:1.6; max-width:320px">Enter your password to load your data.</p>
+  <input type="password" id="fb-login-password" placeholder="Your password" style="width:100%;max-width:360px;padding:12px 14px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-family:'Geist Mono',monospace;font-size:13px;outline:none;color:var(--text)">
+  <button onclick="fbLogin()" style="width:100%;max-width:360px;padding:15px;background:var(--text);color:var(--white);border:none;border-radius:var(--radius);font-family:'Geist Mono',monospace;font-size:12px;font-weight:500;letter-spacing:0.5px;text-transform:uppercase;cursor:pointer">Open Quotey</button>
+  <p id="fb-login-error" style="color:var(--red);font-size:11px;display:none">Incorrect password. Try again.</p>
 </div>
 
-<!-- MAIN APP -->
+<div class="app">
 
-<div id="app">
+  <!-- HEADER -->
+
   <div class="header">
-    <div>
-      <div class="header-title">Quotey <span class="sync-dot" id="sync-dot"></span></div>
-      <div class="header-biz" id="header-biz">Loading...</div>
+    <div class="header-top">
+      <div class="logo">
+        <div class="logo-name">Quotey <span id="sync-status"></span></div>
+        <div class="logo-sub" id="bizSubtitle">All Businesses</div>
+      </div>
+      <div class="header-kpi">
+        <div class="kpi-val" id="kpiVal">£0</div>
+        <div class="kpi-lbl">Quoted this month</div>
+      </div>
     </div>
-    <div class="biz-toggle">
-      <button class="biz-btn active" id="btn-lh" onclick="setBiz('lh')">LH</button>
-      <button class="biz-btn" id="btn-bcl" onclick="setBiz('bcl')">BCL</button>
+    <div class="biz-tabs">
+      <div class="biz-tab active" onclick="setBiz('all')" id="biz-all">All</div>
+      <div class="biz-tab" onclick="setBiz('lht')" id="biz-lht">Little Hedge</div>
+      <div class="biz-tab" onclick="setBiz('bcl')" id="biz-bcl">Ben Coletta</div>
     </div>
   </div>
+
+  <!-- CONTENT -->
 
   <div class="content">
-    <!-- QUOTES -->
-    <div class="tab-panel active" id="panel-quotes">
-      <div class="section-header">
-        <span class="section-title">Quotes</span>
-        <button class="btn-add" onclick="openModal('quote')">+ New</button>
-      </div>
-      <div id="quotes-list"></div>
-    </div>
-
-```
-<!-- JOBS -->
-<div class="tab-panel" id="panel-jobs">
-  <div class="section-header">
-    <span class="section-title">Jobs</span>
-    <button class="btn-add" onclick="openModal('job')">+ New</button>
-  </div>
-  <div id="jobs-list"></div>
-</div>
-
-<!-- SCHEDULE -->
-<div class="tab-panel" id="panel-schedule">
-  <div class="section-header">
-    <span class="section-title">This Week</span>
-  </div>
-  <div id="schedule-list"></div>
-</div>
-
-<!-- STATS -->
-<div class="tab-panel" id="panel-stats">
-  <div class="section-header">
-    <span class="section-title">Stats</span>
-  </div>
-  <div class="stats-grid" id="stats-grid"></div>
-</div>
-```
-
-  </div>
-
-  <nav class="tab-bar">
-    <button class="tab active" onclick="switchTab('quotes',this)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-      Quotes
-    </button>
-    <button class="tab" onclick="switchTab('jobs',this)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
-      Jobs
-    </button>
-    <button class="tab" onclick="switchTab('schedule',this)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-      Schedule
-    </button>
-    <button class="tab" onclick="switchTab('stats',this)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-      Stats
-    </button>
-  </nav>
-</div>
-
-<!-- QUOTE MODAL -->
-
-<div class="modal-overlay" id="modal-quote">
-  <div class="modal">
-    <div class="modal-title" id="quote-modal-title">New Quote</div>
-    <input type="hidden" id="quote-id">
-    <div class="form-group">
-      <label class="form-label">Customer Name</label>
-      <input class="form-input" id="q-name" placeholder="e.g. John Smith">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Address / Area</label>
-      <input class="form-input" id="q-address" placeholder="e.g. Golcar, HD7">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Job Description</label>
-      <input class="form-input" id="q-desc" placeholder="e.g. Hedge trim front & rear">
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Amount (£)</label>
-        <input class="form-input" id="q-amount" type="number" placeholder="0">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Status</label>
-        <select class="form-input" id="q-status">
-          <option value="pending">Pending</option>
-          <option value="sent">Sent</option>
-          <option value="accepted">Accepted</option>
-          <option value="declined">Declined</option>
+    <div class="view active" id="view-quotes"></div>
+    <div class="view" id="view-jobs"></div>
+    <div class="view" id="view-schedule"></div>
+    <div class="view" id="view-stats"></div>
+    <div class="view" id="view-add">
+      <div class="sheet-title">New Quote</div>
+      <div class="field">
+        <label class="field-label">Business</label>
+        <select class="field-input" id="f-biz">
+          <option value="lht">Little Hedge Trimming Co.</option>
+          <option value="bcl">Ben Coletta Landscapes</option>
         </select>
       </div>
+      <div class="field">
+        <label class="field-label">Customer Name</label>
+        <input class="field-input" id="f-name" type="text" placeholder="e.g. Mr & Mrs Smith" autocomplete="off">
+      </div>
+      <div class="field">
+        <label class="field-label">Phone / Email</label>
+        <input class="field-input" id="f-contact" type="text" placeholder="07xxx or email" autocomplete="off">
+      </div>
+      <div class="field">
+        <label class="field-label">Job Address</label>
+        <input class="field-input" id="f-address" type="text" placeholder="Street, Town, Postcode" autocomplete="off">
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label class="field-label">Job Type</label>
+          <select class="field-input" id="f-type">
+            <option value="">Select...</option>
+            <option>Tree Work</option>
+            <option>Hedge Work</option>
+            <option>Shaping</option>
+            <option>Garden Clearance</option>
+            <option>Landscaping</option>
+            <option>Fencing</option>
+            <option>Patio</option>
+            <option>Artificial Grass</option>
+            <option>Turfing</option>
+            <option>Decking</option>
+            <option>Pressure Washing</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field-label">Quote Price (£)</label>
+          <input class="field-input" id="f-price" type="number" placeholder="0" inputmode="decimal">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label class="field-label">Date Quoted</label>
+          <input class="field-input" id="f-date" type="date">
+        </div>
+        <div class="field">
+          <label class="field-label">Follow-up Date</label>
+          <input class="field-input" id="f-followup" type="date">
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">Notes</label>
+        <textarea class="field-input" id="f-notes" placeholder="Access details, scope of work, special requirements..."></textarea>
+      </div>
+      <button class="form-btn form-btn-primary" onclick="saveQuote()">Save Quote</button>
+      <button class="form-btn form-btn-ghost" onclick="clearForm()">Clear Form</button>
     </div>
-    <div class="form-group">
-      <label class="form-label">Notes</label>
-      <input class="form-input" id="q-notes" placeholder="Optional notes">
+  </div>
+
+  <!-- NAV -->
+
+  <nav class="nav">
+    <div class="nav-item active" id="nav-quotes" onclick="switchView('quotes')">
+      <span class="nav-icon">📋</span>
+      <span class="nav-label">Quotes</span>
+      <div class="nav-dot" id="dot-quotes"></div>
     </div>
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeModal('quote')">Cancel</button>
-      <button class="btn-save" onclick="saveQuote()">Save Quote</button>
+    <div class="nav-item" id="nav-jobs" onclick="switchView('jobs')">
+      <span class="nav-icon">🔨</span>
+      <span class="nav-label">Jobs</span>
+      <div class="nav-dot" id="dot-jobs"></div>
     </div>
+    <div class="nav-item" id="nav-schedule" onclick="switchView('schedule')">
+      <span class="nav-icon">📅</span>
+      <span class="nav-label">Schedule</span>
+    </div>
+    <div class="nav-item" id="nav-stats" onclick="switchView('stats')">
+      <span class="nav-icon">📊</span>
+      <span class="nav-label">Stats</span>
+    </div>
+    <div class="nav-item" id="nav-add" onclick="switchView('add')">
+      <span class="nav-icon">＋</span>
+      <span class="nav-label">New</span>
+    </div>
+  </nav>
+
+</div>
+
+<!-- EDIT SHEET -->
+
+<div class="overlay" id="editOverlay">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" id="editSheetTitle">Edit</div>
+    <input type="hidden" id="e-id">
+    <input type="hidden" id="e-isJob">
+    <div class="field">
+      <label class="field-label">Business</label>
+      <select class="field-input" id="e-biz">
+        <option value="lht">Little Hedge Trimming Co.</option>
+        <option value="bcl">Ben Coletta Landscapes</option>
+      </select>
+    </div>
+    <div class="field">
+      <label class="field-label">Customer Name</label>
+      <input class="field-input" id="e-name" type="text" autocomplete="off">
+    </div>
+    <div class="field">
+      <label class="field-label">Phone / Email</label>
+      <input class="field-input" id="e-contact" type="text" autocomplete="off">
+    </div>
+    <div class="field">
+      <label class="field-label">Job Address</label>
+      <input class="field-input" id="e-address" type="text" autocomplete="off">
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label class="field-label">Job Type</label>
+        <select class="field-input" id="e-type">
+          <option value="">Select...</option>
+          <option>Tree Work</option>
+          <option>Hedge Work</option>
+          <option>Shaping</option>
+          <option>Garden Clearance</option>
+          <option>Landscaping</option>
+          <option>Fencing</option>
+          <option>Patio</option>
+          <option>Artificial Grass</option>
+          <option>Turfing</option>
+          <option>Decking</option>
+          <option>Pressure Washing</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="field-label">Quote Price (£)</label>
+        <input class="field-input" id="e-price" type="number" inputmode="decimal">
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label class="field-label">Date Quoted</label>
+        <input class="field-input" id="e-date" type="date">
+      </div>
+      <div class="field">
+        <label class="field-label">Follow-up Date</label>
+        <input class="field-input" id="e-followup" type="date">
+      </div>
+    </div>
+    <div class="field-row" id="e-startRow" style="display:none">
+      <div class="field">
+        <label class="field-label">Agreed Start Date</label>
+        <input class="field-input" id="e-startdate" type="date">
+      </div>
+      <div class="field">
+        <label class="field-label">Start Time</label>
+        <input class="field-input" id="e-starttime" type="time">
+      </div>
+    </div>
+    <div class="field" id="e-invoiceRow" style="display:none">
+      <label class="field-label">Final Invoice Amount (£)</label>
+      <input class="field-input" id="e-invoice" type="number" inputmode="decimal">
+    </div>
+    <div class="field">
+      <label class="field-label">Notes</label>
+      <textarea class="field-input" id="e-notes"></textarea>
+    </div>
+    <button class="form-btn form-btn-primary" onclick="saveEdit()">Save Changes</button>
+    <button class="form-btn form-btn-ghost" onclick="closeEdit()">Cancel</button>
   </div>
 </div>
 
-<!-- JOB MODAL -->
+<!-- COMPLETE MODAL -->
 
-<div class="modal-overlay" id="modal-job">
-  <div class="modal">
-    <div class="modal-title" id="job-modal-title">New Job</div>
-    <input type="hidden" id="job-id">
-    <div class="form-group">
-      <label class="form-label">Customer Name</label>
-      <input class="form-input" id="j-name" placeholder="e.g. John Smith">
+<div class="modal" id="completeModal">
+  <div class="modal-box">
+    <div class="modal-title">Mark as Complete</div>
+    <div class="modal-sub">Enter the final invoice amount. Leave blank to use the quoted price.</div>
+    <input type="hidden" id="cm-id">
+    <div class="field">
+      <label class="field-label">Final Invoice Amount (£)</label>
+      <input class="field-input" id="cm-invoice" type="number" inputmode="decimal" placeholder="Leave blank for quoted price">
     </div>
-    <div class="form-group">
-      <label class="form-label">Address / Area</label>
-      <input class="form-input" id="j-address" placeholder="e.g. Golcar, HD7">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Job Description</label>
-      <input class="form-input" id="j-desc" placeholder="e.g. Hedge trim front & rear">
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Amount (£)</label>
-        <input class="form-input" id="j-amount" type="number" placeholder="0">
+    <button class="form-btn form-btn-primary" onclick="confirmComplete()">Mark Complete</button>
+    <button class="form-btn form-btn-ghost" onclick="closeCompleteModal()">Cancel</button>
+  </div>
+</div>
+
+<!-- WIN MODAL -->
+
+<div class="modal" id="winModal">
+  <div class="modal-box">
+    <div class="modal-title">Quote Won 🎉</div>
+    <div class="modal-sub">Add the agreed start date and time for this job.</div>
+    <input type="hidden" id="wm-id">
+    <div class="field-row">
+      <div class="field">
+        <label class="field-label">Agreed Start Date</label>
+        <input class="field-input" id="wm-startdate" type="date">
       </div>
-      <div class="form-group">
-        <label class="form-label">Date</label>
-        <input class="form-input" id="j-date" type="date">
+      <div class="field">
+        <label class="field-label">Start Time</label>
+        <input class="field-input" id="wm-starttime" type="time">
       </div>
     </div>
-    <div class="form-group">
-      <label class="form-label">Status</label>
-      <select class="form-input" id="j-status">
-        <option value="scheduled">Scheduled</option>
-        <option value="completed">Completed</option>
-        <option value="invoice">Invoice Sent</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Notes</label>
-      <input class="form-input" id="j-notes" placeholder="Optional notes">
-    </div>
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeModal('job')">Cancel</button>
-      <button class="btn-save" onclick="saveJob()">Save Job</button>
-    </div>
+    <button class="form-btn form-btn-primary" onclick="confirmWon()">Move to Jobs</button>
+    <button class="form-btn form-btn-ghost" onclick="closeWinModal()">Skip</button>
+  </div>
+</div>
+
+<!-- PHOTO VIEWER -->
+
+<div class="photo-viewer" id="photoViewer">
+  <img id="pvImg" src="" alt="">
+  <button class="photo-viewer-close" onclick="closePV()">Close</button>
+</div>
+
+<input type="file" id="photoInputCamera" accept="image/*" capture="environment" style="display:none" onchange="handlePhoto(event)">
+<input type="file" id="photoInputLibrary" accept="image/*" style="display:none" onchange="handlePhoto(event)">
+
+<!-- Photo source picker -->
+
+<div class="modal" id="photoPickerModal">
+  <div class="modal-box">
+    <div class="modal-title">Add Photo</div>
+    <div class="modal-sub">Take a new photo or pick one from your library.</div>
+    <button class="form-btn form-btn-primary" onclick="triggerPhotoSource('camera')">📷 Take New Photo</button>
+    <button class="form-btn form-btn-ghost" style="margin-top:8px" onclick="triggerPhotoSource('library')">🖼 Choose from Library</button>
+    <button class="form-btn form-btn-ghost" style="margin-top:6px;color:var(--red)" onclick="closePhotoPicker()">Cancel</button>
   </div>
 </div>
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getFirestore, doc, getDoc, setDoc, collection, getDocs, addDoc, deleteDoc, updateDoc, query, where, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getFirestore, doc, setDoc, getDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-// ─── STATE ───────────────────────────────────────────────────────────────────
-let db = null;
-let currentBiz = 'lh';
-let quotes = [];
-let jobs = [];
-let unsubQuotes = null;
-let unsubJobs = null;
+// ── FIREBASE SETUP ────────────────────────────────────────────────────────────
+let fbDb = null;
+let unsubscribe = null;
 
-// ─── CONFIG ──────────────────────────────────────────────────────────────────
-function getConfig() {
-  try { return JSON.parse(localStorage.getItem('quotey_config') || 'null'); } catch { return null; }
-}
-function saveConfig(cfg) { localStorage.setItem('quotey_config', JSON.stringify(cfg)); }
-function getPassword() { return localStorage.getItem('quotey_password') || ''; }
-function savePassword(p) { localStorage.setItem('quotey_password', p); }
+function getConfig() { try { return JSON.parse(localStorage.getItem('quotey_fb_config') || 'null'); } catch { return null; } }
+function getPassword() { return localStorage.getItem('quotey_fb_password') || ''; }
 
-// ─── INIT ────────────────────────────────────────────────────────────────────
-window.addEventListener('DOMContentLoaded', () => {
-  const cfg = getConfig();
-  const pwd = getPassword();
-  if (!cfg) { showSetupScreen(); return; }
-  if (pwd) { initFirebase(cfg); startApp(); return; }
-  document.getElementById('auth-screen').style.display = 'flex';
-});
-
-function initFirebase(cfg) {
+function initFb(cfg) {
   const app = initializeApp(cfg);
-  db = getFirestore(app);
-  window._db = db;
+  fbDb = getFirestore(app);
 }
 
-window.showSetup = showSetupScreen;
-window.showAuth = () => {
-  document.getElementById('setup-screen').style.display = 'none';
-  document.getElementById('auth-screen').style.display = 'flex';
-};
+function setSyncing() { const s = document.getElementById('sync-status'); if(s) s.className = 'syncing'; }
+function setSynced()  { const s = document.getElementById('sync-status'); if(s) s.className = ''; }
+function setSyncErr() { const s = document.getElementById('sync-status'); if(s) s.className = 'error'; }
 
-function showSetupScreen() {
-  document.getElementById('auth-screen').style.display = 'none';
-  document.getElementById('setup-screen').style.display = 'flex';
-}
-
-window.saveSetup = async () => {
-  const apiKey = document.getElementById('setup-apikey').value.trim();
-  const authDomain = document.getElementById('setup-authdomain').value.trim();
-  const projectId = document.getElementById('setup-projectid').value.trim();
-  const pwd = document.getElementById('setup-password').value.trim();
-  const err = document.getElementById('setup-error');
-  if (!apiKey || !authDomain || !projectId || !pwd) {
-    err.textContent = 'Please fill in all fields'; err.style.display = 'block'; return;
-  }
-  const cfg = { apiKey, authDomain, projectId, storageBucket: `${projectId}.appspot.com`, messagingSenderId: '000000000', appId: '1:000000000:web:000000000' };
-  saveConfig(cfg);
-  savePassword(pwd);
-  initFirebase(cfg);
-  document.getElementById('setup-screen').style.display = 'none';
-  startApp();
-};
-
-window.doLogin = async () => {
-  const pwd = document.getElementById('auth-password').value.trim();
-  const err = document.getElementById('auth-error');
-  const cfg = getConfig();
-  if (!pwd) return;
-  // Verify by trying to read from firebase with this password as user key
-  initFirebase(cfg);
-  try {
-    const ref = doc(db, 'users', pwd);
-    await getDoc(ref);
-    savePassword(pwd);
-    document.getElementById('auth-screen').style.display = 'none';
-    startApp();
-  } catch(e) {
-    err.textContent = 'Could not connect. Check your password or Firebase setup.';
-    err.style.display = 'block';
-  }
-};
-
-function startApp() {
-  document.getElementById('app').style.display = 'flex';
-  setBiz('lh');
-  loadData();
-}
-
-// ─── BUSINESS ────────────────────────────────────────────────────────────────
-window.setBiz = (biz) => {
-  currentBiz = biz;
-  document.getElementById('btn-lh').classList.toggle('active', biz === 'lh');
-  document.getElementById('btn-bcl').classList.toggle('active', biz === 'bcl');
-  document.getElementById('header-biz').textContent = biz === 'lh' ? 'Little Hedge Trimming Co.' : 'Ben Coletta Landscapes';
-  renderAll();
-};
-
-// ─── FIREBASE HELPERS ────────────────────────────────────────────────────────
-function userKey() { return getPassword(); }
-function colRef(type) { return collection(db, 'users', userKey(), type); }
-
-async function loadData() {
+async function fbSave() {
+  if (!fbDb) return;
   setSyncing();
-  if (unsubQuotes) unsubQuotes();
-  if (unsubJobs) unsubJobs();
-  unsubQuotes = onSnapshot(colRef('quotes'), snap => {
-    quotes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    renderQuotes(); renderStats(); renderSchedule();
+  try {
+    await setDoc(doc(fbDb, 'users', getPassword()), { quotes: db.quotes, jobs: db.jobs });
     setSynced();
-  }, () => setSyncError());
-  unsubJobs = onSnapshot(colRef('jobs'), snap => {
-    jobs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    renderJobs(); renderStats(); renderSchedule();
-    setSynced();
-  }, () => setSyncError());
+  } catch(e) { setSyncErr(); }
 }
 
-function setSyncing() { const d = document.getElementById('sync-dot'); d.className = 'sync-dot syncing'; }
-function setSynced() { const d = document.getElementById('sync-dot'); d.className = 'sync-dot'; }
-function setSyncError() { const d = document.getElementById('sync-dot'); d.className = 'sync-dot error'; }
+async function fbLoad() {
+  if (!fbDb) return;
+  setSyncing();
+  try {
+    const snap = await getDoc(doc(fbDb, 'users', getPassword()));
+    if (snap.exists()) {
+      const data = snap.data();
+      db.quotes = data.quotes || [];
+      db.jobs = data.jobs || [];
+      localStorage.setItem(STORE, JSON.stringify(db));
+    }
+    setSynced();
+  } catch(e) { setSyncErr(); }
+}
 
-// ─── TAB SWITCHING ───────────────────────────────────────────────────────────
-window.switchTab = (name, el) => {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('panel-' + name).classList.add('active');
+// ── SETUP SCREEN ──────────────────────────────────────────────────────────────
+window.fbSetupSave = async function() {
+  const apiKey = document.getElementById('fb-apikey').value.trim();
+  const authDomain = document.getElementById('fb-authdomain').value.trim();
+  const projectId = document.getElementById('fb-projectid').value.trim();
+  const pwd = document.getElementById('fb-password').value.trim();
+  const err = document.getElementById('fb-setup-error');
+  if (!apiKey || !authDomain || !projectId || !pwd) {
+    err.textContent = 'Please fill in all fields.'; err.style.display = 'block'; return;
+  }
+  const cfg = { apiKey, authDomain, projectId, storageBucket: projectId + '.appspot.com', messagingSenderId: '0', appId: '0' };
+  localStorage.setItem('quotey_fb_config', JSON.stringify(cfg));
+  localStorage.setItem('quotey_fb_password', pwd);
+  initFb(cfg);
+  await fbLoad();
+  document.getElementById('fb-setup-screen').style.display = 'none';
+  load(); render();
 };
 
-// ─── RENDER ──────────────────────────────────────────────────────────────────
-function renderAll() { renderQuotes(); renderJobs(); renderSchedule(); renderStats(); }
+window.fbLogin = async function() {
+  const pwd = document.getElementById('fb-login-password').value.trim();
+  const err = document.getElementById('fb-login-error');
+  if (!pwd) return;
+  localStorage.setItem('quotey_fb_password', pwd);
+  const cfg = getConfig();
+  initFb(cfg);
+  try {
+    await fbLoad();
+    document.getElementById('fb-login-screen').style.display = 'none';
+    load(); render();
+  } catch(e) {
+    err.style.display = 'block';
+    localStorage.removeItem('quotey_fb_password');
+  }
+};
 
-function statusBadge(s) {
-  const map = { pending:'badge-pending', sent:'badge-sent', accepted:'badge-accepted', declined:'badge-declined', scheduled:'badge-scheduled', completed:'badge-completed', invoice:'badge-invoice' };
-  return `<span class="badge ${map[s]||''}">${s}</span>`;
+// ── INIT ──────────────────────────────────────────────────────────────────────
+const cfg = getConfig();
+const pwd = getPassword();
+
+if (!cfg) {
+  document.getElementById('fb-setup-screen').style.display = 'flex';
+} else if (!pwd) {
+  document.getElementById('fb-login-screen').style.display = 'flex';
+} else {
+  initFb(cfg);
+  fbLoad().then(() => { load(); render(); });
 }
 
+// ── DATA ──────────────────────────────────────────────────────────────────────
+const STORE = 'quotey_v1';
+let db = { quotes: [], jobs: [] };
+let activeBiz = 'all';
+let activeView = 'quotes';
+let photoTarget = null;
+
+function load() {
+  try {
+    const r = localStorage.getItem(STORE);
+    if (r) db = JSON.parse(r);
+    if (!db.quotes) db.quotes = [];
+    if (!db.jobs) db.jobs = [];
+  } catch(e) { db = { quotes: [], jobs: [] }; }
+}
+function save() {
+  localStorage.setItem(STORE, JSON.stringify(db));
+  fbSave();
+}
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+function today() { return new Date().toISOString().slice(0,10); }
+function fmtDate(s) {
+  if (!s) return '';
+  const d = new Date(s + 'T00:00:00');
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+function fmtMoney(n) {
+  const v = parseFloat(n) || 0;
+  return '£' + v.toLocaleString('en-GB', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+}
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function bizName(b) { return b === 'lht' ? 'Little Hedge' : b === 'bcl' ? 'Ben Coletta' : ''; }
+
+function filtered(arr) {
+  if (activeBiz === 'all') return arr;
+  return arr.filter(x => x.biz === activeBiz);
+}
+
+// ── BUSINESS SELECTOR ─────────────────────────────────────────────────────────
+window.setBiz = function(biz) {
+  activeBiz = biz;
+  ['all','lht','bcl'].forEach(b => {
+    document.getElementById('biz-' + b).classList.toggle('active', b === biz);
+  });
+  const labels = { all: 'All Businesses', lht: 'Little Hedge Trimming Co.', bcl: 'Ben Coletta Landscapes' };
+  document.getElementById('bizSubtitle').textContent = labels[biz];
+  render();
+}
+
+// ── VIEW SWITCHING ────────────────────────────────────────────────────────────
+window.switchView = function(name) {
+  activeView = name;
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  document.getElementById('nav-' + name).classList.add('active');
+  if (name === 'add') { clearForm(); }
+  render();
+}
+
+function render() {
+  updateKPI();
+  updateDots();
+  if (activeView === 'quotes') renderQuotes();
+  if (activeView === 'jobs') renderJobs();
+  if (activeView === 'schedule') renderSchedule();
+  if (activeView === 'stats') renderStats();
+}
+
+// ── KPI & DOTS ────────────────────────────────────────────────────────────────
+function updateKPI() {
+  const month = today().slice(0,7);
+  const total = filtered(db.quotes)
+    .filter(q => q.status === 'pending' && (q.date||'').startsWith(month))
+    .reduce((s,q) => s + (parseFloat(q.price)||0), 0);
+  document.getElementById('kpiVal').textContent = fmtMoney(total);
+}
+function updateDots() {
+  const pq = filtered(db.quotes).filter(q => q.status === 'pending').length;
+  const pj = filtered(db.jobs).filter(j => !j.complete).length;
+  const dq = document.getElementById('dot-quotes');
+  const dj = document.getElementById('dot-jobs');
+  dq.classList.toggle('show', pq > 0);
+  dj.classList.toggle('show', pj > 0);
+}
+
+// ── QUOTES VIEW ───────────────────────────────────────────────────────────────
 function renderQuotes() {
-  const el = document.getElementById('quotes-list');
-  const filtered = quotes.filter(q => q.biz === currentBiz);
-  if (!filtered.length) { el.innerHTML = '<div class="empty-state"><div class="icon">📋</div><p>No quotes yet. Tap + New to add one.</p></div>'; return; }
-  el.innerHTML = filtered.sort((a,b) => b.created - a.created).map(q => `
-    <div class="card">
-      <div class="card-top">
-        <div><div class="card-name">${q.name}</div><div class="card-meta">${q.address||''}</div><div class="card-meta" style="margin-top:3px">${q.desc||''}</div></div>
-        <div style="text-align:right"><div class="card-amount">£${Number(q.amount||0).toLocaleString()}</div>${statusBadge(q.status)}</div>
-      </div>
-      ${q.notes ? `<div class="card-meta" style="margin-top:6px;font-style:italic">${q.notes}</div>` : ''}
-      <div class="card-actions">
-        <button class="btn-sm primary" onclick="editQuote('${q.id}')">Edit</button>
-        <button class="btn-sm whatsapp" onclick="waQuote('${q.id}')">WhatsApp</button>
-        <button class="btn-sm" onclick="quoteToJob('${q.id}')">→ Job</button>
-        <button class="btn-sm danger" onclick="deleteItem('quote','${q.id}')">Delete</button>
-      </div>
-    </div>`).join('');
+  const el = document.getElementById('view-quotes');
+  const todayStr = today();
+  const pending = filtered(db.quotes).filter(q => q.status === 'pending');
+  const lost = filtered(db.quotes).filter(q => q.status === 'lost');
+
+  if (pending.length === 0 && lost.length === 0) {
+    el.innerHTML = emptyState('📋', 'No quotes yet', 'Tap + New to log your first quote');
+    return;
+  }
+
+  const due = pending.filter(q => q.followup && q.followup <= todayStr);
+  let html = '';
+  due.forEach(q => {
+    const od = q.followup < todayStr;
+    html += `<div class="alert alert-amber">
+      <div class="alert-icon">🔔</div>
+      <div class="alert-text"><strong>Follow-up ${od ? 'overdue' : 'due today'}:</strong> ${esc(q.name)} — ${esc(q.type)} — ${fmtMoney(q.price)}</div>
+    </div>`;
+  });
+
+  if (pending.length > 0) {
+    html += sectionHead('Pending Quotes', pending.length);
+    pending.forEach(q => { html += quoteCard(q, todayStr); });
+  }
+
+  if (lost.length > 0) {
+    html += `<div class="section-divider"></div>`;
+    html += sectionHead('Lost Quotes', lost.length);
+    lost.forEach(q => { html += quoteCard(q, todayStr, true); });
+  }
+
+  el.innerHTML = html;
 }
 
-function renderJobs() {
-  const el = document.getElementById('jobs-list');
-  const filtered = jobs.filter(j => j.biz === currentBiz);
-  if (!filtered.length) { el.innerHTML = '<div class="empty-state"><div class="icon">🔧</div><p>No jobs yet.</p></div>'; return; }
-  el.innerHTML = filtered.sort((a,b) => (b.date||'') > (a.date||'') ? 1 : -1).map(j => `
-    <div class="card">
-      <div class="card-top">
-        <div><div class="card-name">${j.name}</div><div class="card-meta">${j.address||''}</div><div class="card-meta" style="margin-top:3px">${j.desc||''}</div></div>
-        <div style="text-align:right"><div class="card-amount">£${Number(j.amount||0).toLocaleString()}</div>${statusBadge(j.status)}</div>
-      </div>
-      ${j.date ? `<div class="card-meta" style="margin-top:6px">📅 ${new Date(j.date+'T12:00:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})}</div>` : ''}
-      ${j.notes ? `<div class="card-meta" style="margin-top:4px;font-style:italic">${j.notes}</div>` : ''}
-      <div class="card-actions">
-        <button class="btn-sm primary" onclick="editJob('${j.id}')">Edit</button>
-        <button class="btn-sm whatsapp" onclick="waJob('${j.id}')">WhatsApp</button>
-        <button class="btn-sm danger" onclick="deleteItem('job','${j.id}')">Delete</button>
-      </div>
-    </div>`).join('');
+function quoteCard(q, todayStr, isLost=false) {
+  const od = q.followup && q.followup < todayStr && !isLost;
+  const fuToday = q.followup && q.followup === todayStr && !isLost;
+  return `<div class="card">
+    <div class="card-top">
+      <div class="card-name">${esc(q.name)}</div>
+      <div class="card-price">${fmtMoney(q.price)}</div>
+    </div>
+    <div class="card-row">
+      ${q.type ? `<span class="pill pill-type">${esc(q.type)}</span>` : ''}
+      ${q.biz ? `<span class="pill pill-biz">${bizName(q.biz)}</span>` : ''}
+      ${q.date ? `<span class="pill pill-date">${fmtDate(q.date)}</span>` : ''}
+      ${od ? `<span class="pill pill-overdue">Follow-up overdue</span>` : ''}
+      ${fuToday ? `<span class="pill pill-followup">Follow-up today</span>` : ''}
+      ${q.followup && !od && !fuToday && !isLost ? `<span class="pill pill-date">Follow up ${fmtDate(q.followup)}</span>` : ''}
+    </div>
+    ${q.address ? `<div class="card-detail"><span class="card-detail-icon">📍</span><a href="https://maps.google.com/?q=${encodeURIComponent(q.address)}" target="_blank" style="color:var(--blue);text-decoration:none;font-size:11px">${esc(q.address)}</a></div>` : ''}
+    ${q.contact ? `<div class="card-detail"><span class="card-detail-icon">📞</span><a href="tel:${esc(q.contact)}" style="color:var(--blue);text-decoration:none;font-size:11px">${esc(q.contact)}</a></div>` : ''}
+    ${q.notes ? `<div class="card-notes">${esc(q.notes)}</div>` : ''}
+    ${photosHtml(q)}
+    <div class="card-actions">
+      ${!isLost ? `<button class="btn btn-success" onclick="openWinModal('${q.id}')">✓ Won</button>` : ''}
+      ${!isLost ? `<button class="btn btn-danger" onclick="markLost('${q.id}')">✗ Lost</button>` : ''}
+      <button class="btn btn-ghost" onclick="openEdit('${q.id}',false)">Edit</button>
+      <button class="btn btn-ghost" onclick="addPhoto('${q.id}')">📷</button>
+      <button class="btn btn-whatsapp" onclick="shareWA('${q.id}','quote')">WhatsApp</button>
+      <button class="btn btn-danger" onclick="deleteItem('${q.id}','quote')" style="margin-left:auto">🗑</button>
+    </div>
+  </div>`;
 }
+
+// ── JOBS VIEW ─────────────────────────────────────────────────────────────────
+function renderJobs() {
+  const el = document.getElementById('view-jobs');
+  const todayStr = today();
+  const active = filtered(db.jobs).filter(j => !j.complete)
+    .sort((a,b) => (a.startdate||'9999') < (b.startdate||'9999') ? -1 : 1);
+  const done = filtered(db.jobs).filter(j => j.complete)
+    .sort((a,b) => (b.completedDate||'') > (a.completedDate||'') ? 1 : -1);
+
+  if (active.length === 0 && done.length === 0) {
+    el.innerHTML = emptyState('🔨', 'No jobs yet', 'Mark a quote as Won to move it here');
+    return;
+  }
+
+  let html = '';
+  if (active.length > 0) {
+    html += sectionHead('Jobs To Do', active.length);
+    active.forEach(j => { html += jobCard(j, todayStr); });
+  }
+  if (done.length > 0) {
+    if (active.length > 0) html += `<div class="section-divider"></div>`;
+    html += sectionHead('Completed', done.length);
+    done.slice(0, 20).forEach(j => { html += jobCard(j, todayStr); });
+  }
+  el.innerHTML = html;
+}
+
+function jobCard(j, todayStr) {
+  const overdue = j.startdate && j.startdate < todayStr && !j.complete;
+  const price = j.invoiceAmount ? fmtMoney(j.invoiceAmount) : fmtMoney(j.price);
+  const startBlock = j.startdate ? `
+    <div style="
+      background: ${overdue ? 'var(--red-light)' : j.complete ? 'var(--surface)' : 'var(--off)'};
+      border: 1px solid ${overdue ? 'var(--red-border)' : 'var(--border)'};
+      border-radius: var(--radius-sm);
+      padding: 10px 13px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    ">
+      <div>
+        <div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:${overdue ? 'var(--red)' : 'var(--text3)'};font-weight:500;margin-bottom:3px">${overdue ? '⚠ Start date passed' : j.complete ? 'Started' : '🗓 Scheduled Start'}</div>
+        <div style="font-family:'Instrument Serif',serif;font-size:18px;color:${overdue ? 'var(--red)' : 'var(--text)'}">${fmtDate(j.startdate)}${j.starttime ? `<span style="font-size:13px;color:var(--text2);margin-left:8px">${j.starttime}</span>` : ''}</div>
+      </div>
+      ${!j.complete ? `<div style="font-size:22px">${overdue ? '🔴' : '🟢'}</div>` : ''}
+    </div>` : '';
+  return `<div class="card">
+    <div class="card-top">
+      <div class="card-name">${esc(j.name)}</div>
+      <div class="card-price ${j.invoiceAmount ? 'invoiced' : ''}">${price}</div>
+    </div>
+    <div class="card-row">
+      ${j.type ? `<span class="pill pill-type">${esc(j.type)}</span>` : ''}
+      ${j.biz ? `<span class="pill pill-biz">${bizName(j.biz)}</span>` : ''}
+      ${j.complete ? `<span class="pill pill-complete">✓ Complete</span>` : ''}
+      ${j.invoiceAmount ? `<span class="pill pill-complete">Invoiced: ${fmtMoney(j.invoiceAmount)}</span>` : ''}
+    </div>
+    ${startBlock}
+    ${j.address ? `<div class="card-detail"><span class="card-detail-icon">📍</span><a href="https://maps.google.com/?q=${encodeURIComponent(j.address)}" target="_blank" style="color:var(--blue);text-decoration:none;font-size:11px">${esc(j.address)}</a></div>` : ''}
+    ${j.contact ? `<div class="card-detail"><span class="card-detail-icon">📞</span><a href="tel:${esc(j.contact)}" style="color:var(--blue);text-decoration:none;font-size:11px">${esc(j.contact)}</a></div>` : ''}
+    ${j.notes ? `<div class="card-notes">${esc(j.notes)}</div>` : ''}
+    ${photosHtml(j)}
+    <div class="card-actions">
+      ${!j.complete ? `<button class="btn btn-success" onclick="openCompleteModal('${j.id}')">✓ Complete</button>` : ''}
+      <button class="btn btn-ghost" onclick="openEdit('${j.id}',true)">Edit</button>
+      <button class="btn btn-ghost" onclick="addPhoto('${j.id}')">📷</button>
+      <button class="btn btn-whatsapp" onclick="shareWA('${j.id}','job')">WhatsApp</button>
+      <button class="btn btn-danger" onclick="deleteItem('${j.id}','job')" style="margin-left:auto">🗑</button>
+    </div>
+  </div>`;
+}
+
+// ── STATS ─────────────────────────────────────────────────────────────────────
+function renderStats() {
+  const el = document.getElementById('view-stats');
+  const allQ = filtered(db.quotes);
+  const allJ = filtered(db.jobs);
+  const pending = allQ.filter(q => q.status === 'pending').length;
+  const lost = allQ.filter(q => q.status === 'lost').length;
+  const won = allJ.length;
+  const complete = allJ.filter(j => j.complete).length;
+  const total = won + lost;
+  const rate = total > 0 ? Math.round((won/total)*100) : 0;
+  const totalQuoted = [...allQ, ...allJ].reduce((s,x) => s + (parseFloat(x.price)||0), 0);
+  const totalInvoiced = allJ.filter(j=>j.invoiceAmount).reduce((s,j) => s+(parseFloat(j.invoiceAmount)||0), 0);
+  const avgQuote = won > 0 ? totalQuoted / (won + allQ.length || 1) : 0;
+
+  let html = `
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-val stat-amber">${pending}</div><div class="stat-lbl">Pending Quotes</div></div>
+    <div class="stat-card"><div class="stat-val stat-green">${won}</div><div class="stat-lbl">Jobs Won</div></div>
+    <div class="stat-card"><div class="stat-val stat-red">${lost}</div><div class="stat-lbl">Quotes Lost</div></div>
+    <div class="stat-card"><div class="stat-val stat-blue">${complete}</div><div class="stat-lbl">Completed</div></div>
+  </div>
+  <div class="rate-card">
+    <div class="rate-head"><span>Win Rate</span><strong>${rate}%</strong></div>
+    <div class="bar-track"><div class="bar-fill" style="width:${rate}%"></div></div>
+    <div class="rate-foot">
+      <div class="rate-item"><span>${fmtMoney(totalQuoted)}</span>Total Quoted</div>
+      <div class="rate-item" style="text-align:center"><span>${fmtMoney(avgQuote)}</span>Avg Quote</div>
+      <div class="rate-item" style="text-align:right"><span style="color:var(--green)">${fmtMoney(totalInvoiced)}</span>Total Invoiced</div>
+    </div>
+  </div>`;
+
+  const monthMap = {};
+  [...allQ.filter(q=>q.status!=='pending'), ...allJ].forEach(item => {
+    const d = item.date || item.startdate || '';
+    if (!d) return;
+    const key = d.slice(0,7);
+    if (!monthMap[key]) monthMap[key] = { quoted: 0, won: 0, lost: 0 };
+    if (item.status === 'lost') monthMap[key].lost++;
+    else { monthMap[key].quoted += parseFloat(item.price)||0; monthMap[key].won++; }
+  });
+
+  const months = Object.keys(monthMap).sort().reverse().slice(0, 8);
+  if (months.length > 0) {
+    html += `<div class="section-head" style="margin-top:8px"><div class="section-title">Monthly</div></div>`;
+    months.forEach(m => {
+      const d = monthMap[m];
+      const label = new Date(m + '-01').toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+      html += `<div class="month-card">
+        <div class="month-left">${label}<div class="month-sub">${d.won} won · ${d.lost} lost</div></div>
+        <div class="month-right">${fmtMoney(d.quoted)}</div>
+      </div>`;
+    });
+  }
+
+  html += `<div class="section-divider"></div>
+  <div class="section-head"><div class="section-title">Data</div></div>
+  <button class="form-btn form-btn-ghost" style="margin-top:0" onclick="backupData()">⬇ Export Backup</button>
+  <button class="form-btn form-btn-ghost" onclick="triggerRestore()">⬆ Restore from Backup</button>
+  <input type="file" id="restoreInput" accept=".json" style="display:none" onchange="restoreData(event)">
+  <p style="font-size:10px;color:var(--text3);text-align:center;margin-top:10px;line-height:1.6">Back up regularly to your Files app or iCloud Drive for safekeeping.</p>`;
+
+  el.innerHTML = html;
+}
+
+// ── BACKUP / RESTORE ──────────────────────────────────────────────────────────
+window.backupData = function() {
+  const blob = new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'quotey-backup-' + today() + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+window.triggerRestore = function() { document.getElementById('restoreInput').click(); }
+window.restoreData = function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    try {
+      const parsed = JSON.parse(ev.target.result);
+      if (!parsed.quotes || !parsed.jobs) { alert('Invalid backup file.'); return; }
+      if (!confirm('This will replace all current data. Are you sure?')) return;
+      db = parsed;
+      save();
+      render();
+      alert('Restored successfully.');
+    } catch(err) { alert('Could not read backup file.'); }
+  };
+  r.readAsText(file);
+  e.target.value = '';
+}
+
+// ── WHATSAPP ──────────────────────────────────────────────────────────────────
+window.shareWA = function(id, type) {
+  const item = type === 'quote' ? db.quotes.find(q => q.id === id) : db.jobs.find(j => j.id === id);
+  if (!item) return;
+  const biz = item.biz === 'lht' ? 'Little Hedge Trimming Co.' : 'Ben Coletta Landscapes';
+  const status = type === 'job' ? (item.complete ? 'COMPLETE' : 'JOB TO DO') : 'QUOTE';
+  let msg = `*${biz}*\n*${status}*\n\n👤 ${item.name}\n`;
+  if (item.contact) msg += `📞 ${item.contact}\n`;
+  if (item.address) msg += `📍 ${item.address}\n`;
+  if (item.type) msg += `🔧 ${item.type}\n`;
+  msg += `💷 ${fmtMoney(item.price)}`;
+  if (item.invoiceAmount) msg += ` (Invoice: ${fmtMoney(item.invoiceAmount)})`;
+  msg += `\n`;
+  if (item.date) msg += `📅 Quoted: ${fmtDate(item.date)}\n`;
+  if (item.startdate) msg += `🗓 Start: ${fmtDate(item.startdate)}\n`;
+  if (item.notes) msg += `\n📝 ${item.notes}\n`;
+  window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+}
+
+// ── WIN MODAL ─────────────────────────────────────────────────────────────────
+window.openWinModal = function(id) {
+  document.getElementById('wm-id').value = id;
+  document.getElementById('wm-startdate').value = '';
+  document.getElementById('winModal').classList.add('open');
+}
+window.closeWinModal = function() { document.getElementById('winModal').classList.remove('open'); }
+window.confirmWon = function() {
+  const id = document.getElementById('wm-id').value;
+  const startdate = document.getElementById('wm-startdate').value;
+  const starttime = document.getElementById('wm-starttime').value;
+  const idx = db.quotes.findIndex(q => q.id === id);
+  if (idx === -1) return;
+  const q = { ...db.quotes[idx], status: 'won', startdate, starttime, complete: false };
+  db.jobs.push(q);
+  db.quotes.splice(idx, 1);
+  save();
+  closeWinModal();
+  switchView('jobs');
+}
+
+// ── COMPLETE MODAL ────────────────────────────────────────────────────────────
+window.openCompleteModal = function(id) {
+  document.getElementById('cm-id').value = id;
+  document.getElementById('cm-invoice').value = '';
+  document.getElementById('completeModal').classList.add('open');
+}
+window.closeCompleteModal = function() { document.getElementById('completeModal').classList.remove('open'); }
+window.confirmComplete = function() {
+  const id = document.getElementById('cm-id').value;
+  const inv = document.getElementById('cm-invoice').value;
+  const j = db.jobs.find(x => x.id === id);
+  if (!j) return;
+  j.complete = true;
+  j.completedDate = today();
+  if (inv && !isNaN(parseFloat(inv))) j.invoiceAmount = parseFloat(inv);
+  save();
+  closeCompleteModal();
+  renderJobs();
+}
+
+// ── LOST ──────────────────────────────────────────────────────────────────────
+window.markLost = function(id) {
+  if (!confirm('Mark this quote as lost?')) return;
+  const q = db.quotes.find(q => q.id === id);
+  if (q) { q.status = 'lost'; save(); renderQuotes(); }
+}
+
+// ── DELETE ────────────────────────────────────────────────────────────────────
+window.deleteItem = function(id, type) {
+  if (!confirm('Delete this ' + type + '? This cannot be undone.')) return;
+  if (type === 'quote') db.quotes = db.quotes.filter(q => q.id !== id);
+  else db.jobs = db.jobs.filter(j => j.id !== id);
+  save();
+  render();
+}
+
+// ── EDIT ──────────────────────────────────────────────────────────────────────
+window.openEdit = function(id, isJob) {
+  const item = isJob ? db.jobs.find(j => j.id === id) : db.quotes.find(q => q.id === id);
+  if (!item) return;
+  document.getElementById('editSheetTitle').textContent = isJob ? 'Edit Job' : 'Edit Quote';
+  document.getElementById('e-id').value = id;
+  document.getElementById('e-isJob').value = isJob ? '1' : '0';
+  document.getElementById('e-biz').value = item.biz || 'lht';
+  document.getElementById('e-name').value = item.name || '';
+  document.getElementById('e-contact').value = item.contact || '';
+  document.getElementById('e-address').value = item.address || '';
+  document.getElementById('e-type').value = item.type || '';
+  document.getElementById('e-price').value = item.price || '';
+  document.getElementById('e-date').value = item.date || '';
+  document.getElementById('e-followup').value = item.followup || '';
+  document.getElementById('e-notes').value = item.notes || '';
+  document.getElementById('e-startRow').style.display = isJob ? 'grid' : 'none';
+  document.getElementById('e-invoiceRow').style.display = isJob ? 'block' : 'none';
+  if (isJob) {
+    document.getElementById('e-startdate').value = item.startdate || '';
+    document.getElementById('e-starttime').value = item.starttime || '';
+    document.getElementById('e-invoice').value = item.invoiceAmount || '';
+  }
+  document.getElementById('editOverlay').classList.add('open');
+}
+window.closeEdit = function() { document.getElementById('editOverlay').classList.remove('open'); }
+window.saveEdit = function() {
+  const id = document.getElementById('e-id').value;
+  const isJob = document.getElementById('e-isJob').value === '1';
+  const arr = isJob ? db.jobs : db.quotes;
+  const item = arr.find(x => x.id === id);
+  if (!item) return;
+  item.biz = document.getElementById('e-biz').value;
+  item.name = document.getElementById('e-name').value.trim();
+  item.contact = document.getElementById('e-contact').value.trim();
+  item.address = document.getElementById('e-address').value.trim();
+  item.type = document.getElementById('e-type').value;
+  item.price = parseFloat(document.getElementById('e-price').value) || 0;
+  item.date = document.getElementById('e-date').value;
+  item.followup = document.getElementById('e-followup').value;
+  item.notes = document.getElementById('e-notes').value.trim();
+  if (isJob) {
+    item.startdate = document.getElementById('e-startdate').value;
+    item.starttime = document.getElementById('e-starttime').value;
+    const inv = parseFloat(document.getElementById('e-invoice').value);
+    if (!isNaN(inv) && inv > 0) item.invoiceAmount = inv;
+  }
+  save();
+  closeEdit();
+  render();
+}
+
+// ── ADD QUOTE ─────────────────────────────────────────────────────────────────
+window.saveQuote = function() {
+  const name = document.getElementById('f-name').value.trim();
+  if (!name) { alert('Please enter a customer name.'); return; }
+  db.quotes.push({
+    id: uid(),
+    biz: document.getElementById('f-biz').value,
+    name,
+    contact: document.getElementById('f-contact').value.trim(),
+    address: document.getElementById('f-address').value.trim(),
+    type: document.getElementById('f-type').value,
+    price: parseFloat(document.getElementById('f-price').value) || 0,
+    date: document.getElementById('f-date').value || today(),
+    followup: document.getElementById('f-followup').value,
+    notes: document.getElementById('f-notes').value.trim(),
+    status: 'pending',
+    photos: []
+  });
+  save();
+  clearForm();
+  switchView('quotes');
+}
+window.clearForm = function() {
+  ['f-name','f-contact','f-address','f-notes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-type').value = '';
+  document.getElementById('f-price').value = '';
+  document.getElementById('f-biz').value = 'lht';
+  document.getElementById('f-date').value = today();
+  document.getElementById('f-followup').value = '';
+}
+
+// ── PHOTOS ────────────────────────────────────────────────────────────────────
+window.addPhoto = function(id) {
+  photoTarget = id;
+  document.getElementById('photoPickerModal').classList.add('open');
+}
+window.triggerPhotoSource = function(source) {
+  closePhotoPicker();
+  setTimeout(() => {
+    if (source === 'camera') document.getElementById('photoInputCamera').click();
+    else document.getElementById('photoInputLibrary').click();
+  }, 200);
+}
+window.closePhotoPicker = function() { document.getElementById('photoPickerModal').classList.remove('open'); }
+window.handlePhoto = function(e) {
+  const file = e.target.files[0];
+  if (!file || !photoTarget) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const max = 900;
+      let w = img.width, h = img.height;
+      if (w > max) { h = Math.round(h*max/w); w = max; }
+      if (h > max) { w = Math.round(w*max/h); h = max; }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      const id = photoTarget;
+      const item = db.quotes.find(q=>q.id===id) || db.jobs.find(j=>j.id===id);
+      if (!item) return;
+      if (!item.photos) item.photos = [];
+      item.photos.push(canvas.toDataURL('image/jpeg', 0.75));
+      save();
+      render();
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+}
+function photosHtml(item) {
+  if (!item.photos || item.photos.length === 0) return '';
+  return `<div class="card-photos">${item.photos.map((p,i) =>
+    `<img class="photo-thumb" src="${p}" onclick="openPV('${item.id}',${i})">`
+  ).join('')}</div>`;
+}
+window.openPV = function(id, idx) {
+  const item = db.quotes.find(q=>q.id===id) || db.jobs.find(j=>j.id===id);
+  if (!item || !item.photos) return;
+  document.getElementById('pvImg').src = item.photos[idx];
+  document.getElementById('photoViewer').classList.add('open');
+}
+window.closePV = function() { document.getElementById('photoViewer').classList.remove('open'); }
+
+// ── SCHEDULE ──────────────────────────────────────────────────────────────────
+let schedFilter = 'upcoming';
 
 function renderSchedule() {
-  const el = document.getElementById('schedule-list');
-  const today = new Date(); today.setHours(0,0,0,0);
-  const days = [];
-  for (let i = 0; i < 7; i++) { const d = new Date(today); d.setDate(today.getDate() + i); days.push(d); }
-  const allJobs = jobs;
-  el.innerHTML = days.map(day => {
-    const ds = day.toISOString().split('T')[0];
-    const dayJobs = allJobs.filter(j => j.date === ds);
-    const label = day.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short' });
-    const isToday = day.getTime() === today.getTime();
-    return `<div class="day-block">
-      <div class="day-label" style="${isToday ? 'color:var(--accent)' : ''}">${isToday ? '▶ ' : ''}${label}</div>
-      ${dayJobs.length ? dayJobs.map(j => `
-        <div class="card" style="margin-left:0;margin-right:0">
-          <div class="card-top">
-            <div><div class="card-name">${j.name}</div><div class="card-meta">${j.desc||''}</div><span class="badge ${j.biz === 'lh' ? 'badge-lh' : 'badge-bcl'}" style="margin-top:4px;display:inline-block">${j.biz === 'lh' ? 'Little Hedge' : 'BCL'}</span></div>
-            <div class="card-amount" style="font-size:16px">£${Number(j.amount||0).toLocaleString()}</div>
-          </div>
-        </div>`).join('') : `<div class="day-empty">Nothing scheduled</div>`}
+  const el = document.getElementById('view-schedule');
+  const todayStr = today();
+  const allJobs = db.jobs.filter(j => j.startdate && !j.complete);
+
+  allJobs.sort((a, b) => {
+    const da = a.startdate + (a.starttime || '00:00');
+    const db2 = b.startdate + (b.starttime || '00:00');
+    return da < db2 ? -1 : 1;
+  });
+
+  const now = new Date();
+  const weekEnd = new Date(now); weekEnd.setDate(now.getDate() + 7);
+  const monthEnd = new Date(now); monthEnd.setDate(now.getDate() + 30);
+
+  let filtered2 = allJobs;
+  if (schedFilter === 'upcoming') filtered2 = allJobs.filter(j => j.startdate >= todayStr);
+  else if (schedFilter === 'week') filtered2 = allJobs.filter(j => j.startdate >= todayStr && new Date(j.startdate) <= weekEnd);
+  else if (schedFilter === 'month') filtered2 = allJobs.filter(j => j.startdate >= todayStr && new Date(j.startdate) <= monthEnd);
+
+  const filters = [
+    { key: 'upcoming', label: 'Upcoming' },
+    { key: 'week',     label: 'This Week' },
+    { key: 'month',    label: '30 Days' },
+    { key: 'all',      label: 'All' },
+  ];
+  let html = `<div class="sched-jump">`;
+  filters.forEach(f => {
+    html += `<button class="sched-jump-btn ${schedFilter === f.key ? 'active' : ''}" onclick="setSchedFilter('${f.key}')">${f.label}</button>`;
+  });
+  html += `</div>`;
+
+  if (filtered2.length === 0) {
+    html += `<div class="sched-no-jobs">
+      <div class="sched-no-jobs-icon">📅</div>
+      <div class="sched-no-jobs-text">Nothing scheduled</div>
+      <div class="sched-no-jobs-sub">Won jobs with a start date will appear here</div>
     </div>`;
-  }).join('');
-}
-
-function renderStats() {
-  const el = document.getElementById('stats-grid');
-  const bQuotes = quotes.filter(q => q.biz === currentBiz);
-  const bJobs = jobs.filter(j => j.biz === currentBiz);
-  const totalQuoted = bQuotes.reduce((s,q) => s + Number(q.amount||0), 0);
-  const accepted = bQuotes.filter(q => q.status === 'accepted');
-  const acceptedVal = accepted.reduce((s,q) => s + Number(q.amount||0), 0);
-  const completedJobs = bJobs.filter(j => j.status === 'completed');
-  const completedVal = completedJobs.reduce((s,j) => s + Number(j.amount||0), 0);
-  const scheduled = bJobs.filter(j => j.status === 'scheduled');
-  el.innerHTML = `
-    <div class="stat-card"><div class="stat-label">Total Quoted</div><div class="stat-value">£${totalQuoted.toLocaleString()}</div><div class="stat-sub">${bQuotes.length} quotes</div></div>
-    <div class="stat-card"><div class="stat-label">Accepted</div><div class="stat-value">£${acceptedVal.toLocaleString()}</div><div class="stat-sub">${accepted.length} quotes</div></div>
-    <div class="stat-card"><div class="stat-label">Completed</div><div class="stat-value">£${completedVal.toLocaleString()}</div><div class="stat-sub">${completedJobs.length} jobs</div></div>
-    <div class="stat-card"><div class="stat-label">Upcoming</div><div class="stat-value">${scheduled.length}</div><div class="stat-sub">scheduled jobs</div></div>`;
-}
-
-// ─── MODALS ──────────────────────────────────────────────────────────────────
-window.openModal = (type) => {
-  if (type === 'quote') {
-    document.getElementById('quote-modal-title').textContent = 'New Quote';
-    document.getElementById('quote-id').value = '';
-    ['q-name','q-address','q-desc','q-amount','q-notes'].forEach(id => document.getElementById(id).value = '');
-    document.getElementById('q-status').value = 'pending';
-  } else {
-    document.getElementById('job-modal-title').textContent = 'New Job';
-    document.getElementById('job-id').value = '';
-    ['j-name','j-address','j-desc','j-amount','j-notes'].forEach(id => document.getElementById(id).value = '');
-    document.getElementById('j-date').value = new Date().toISOString().split('T')[0];
-    document.getElementById('j-status').value = 'scheduled';
+    el.innerHTML = html;
+    return;
   }
-  document.getElementById('modal-' + type).classList.add('open');
-};
 
-window.closeModal = (type) => document.getElementById('modal-' + type).classList.remove('open');
+  const groups = {};
+  filtered2.forEach(j => {
+    if (!groups[j.startdate]) groups[j.startdate] = [];
+    groups[j.startdate].push(j);
+  });
 
-window.editQuote = (id) => {
-  const q = quotes.find(x => x.id === id); if (!q) return;
-  document.getElementById('quote-modal-title').textContent = 'Edit Quote';
-  document.getElementById('quote-id').value = id;
-  document.getElementById('q-name').value = q.name || '';
-  document.getElementById('q-address').value = q.address || '';
-  document.getElementById('q-desc').value = q.desc || '';
-  document.getElementById('q-amount').value = q.amount || '';
-  document.getElementById('q-status').value = q.status || 'pending';
-  document.getElementById('q-notes').value = q.notes || '';
-  document.getElementById('modal-quote').classList.add('open');
-};
+  Object.keys(groups).sort().forEach(dateStr => {
+    const d = new Date(dateStr + 'T00:00:00');
+    const isToday = dateStr === todayStr;
+    const isTomorrow = dateStr === tomorrowStr();
+    const dayName = isToday ? 'Today' : isTomorrow ? 'Tomorrow' : d.toLocaleDateString('en-GB', { weekday: 'long' });
+    const dateLabel = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+    const jobs = groups[dateStr].sort((a,b) => (a.starttime||'99:99') < (b.starttime||'99:99') ? -1 : 1);
 
-window.editJob = (id) => {
-  const j = jobs.find(x => x.id === id); if (!j) return;
-  document.getElementById('job-modal-title').textContent = 'Edit Job';
-  document.getElementById('job-id').value = id;
-  document.getElementById('j-name').value = j.name || '';
-  document.getElementById('j-address').value = j.address || '';
-  document.getElementById('j-desc').value = j.desc || '';
-  document.getElementById('j-amount').value = j.amount || '';
-  document.getElementById('j-date').value = j.date || '';
-  document.getElementById('j-status').value = j.status || 'scheduled';
-  document.getElementById('j-notes').value = j.notes || '';
-  document.getElementById('modal-job').classList.add('open');
-};
+    html += `<div class="sched-day-block">
+      <div class="sched-day-label">
+        <div class="sched-day-name">${dayName}</div>
+        <div class="sched-day-date">${dateLabel}</div>
+        ${isToday ? `<span class="sched-today-badge">Today</span>` : ''}
+      </div>`;
 
-// ─── SAVE ─────────────────────────────────────────────────────────────────────
-window.saveQuote = async () => {
-  const id = document.getElementById('quote-id').value;
-  const data = { biz: currentBiz, name: document.getElementById('q-name').value.trim(), address: document.getElementById('q-address').value.trim(), desc: document.getElementById('q-desc').value.trim(), amount: document.getElementById('q-amount').value, status: document.getElementById('q-status').value, notes: document.getElementById('q-notes').value.trim() };
-  if (!data.name) return;
-  setSyncing();
-  if (id) { await updateDoc(doc(db, 'users', userKey(), 'quotes', id), data); }
-  else { data.created = Date.now(); await addDoc(colRef('quotes'), data); }
-  closeModal('quote');
-};
+    jobs.forEach(j => {
+      html += `<div class="sched-job">
+        <div class="sched-job-time ${j.starttime ? '' : 'tbc'}">${j.starttime || 'TBC'}</div>
+        <div class="sched-job-body">
+          <div class="sched-job-name">${esc(j.name)}</div>
+          <div class="sched-job-row">
+            ${j.type ? `<span>${esc(j.type)}</span>` : ''}
+            ${j.biz ? `<span class="sched-job-biz">${bizName(j.biz)}</span>` : ''}
+            ${j.price ? `<span>${fmtMoney(j.price)}</span>` : ''}
+          </div>
+          ${j.address ? `<a href="https://maps.google.com/?q=${encodeURIComponent(j.address)}" target="_blank" style="color:var(--blue);text-decoration:none;font-size:11px;display:block;margin-bottom:2px">📍 ${esc(j.address)}</a>` : ''}
+          ${j.contact ? `<a href="tel:${esc(j.contact)}" style="color:var(--blue);text-decoration:none;font-size:11px;display:block">📞 ${esc(j.contact)}</a>` : ''}
+          ${j.notes ? `<div style="font-size:11px;color:var(--text2);margin-top:5px;line-height:1.5;background:var(--off);border-radius:6px;padding:6px 8px">${esc(j.notes)}</div>` : ''}
+        </div>
+      </div>`;
+    });
 
-window.saveJob = async () => {
-  const id = document.getElementById('job-id').value;
-  const data = { biz: currentBiz, name: document.getElementById('j-name').value.trim(), address: document.getElementById('j-address').value.trim(), desc: document.getElementById('j-desc').value.trim(), amount: document.getElementById('j-amount').value, date: document.getElementById('j-date').value, status: document.getElementById('j-status').value, notes: document.getElementById('j-notes').value.trim() };
-  if (!data.name) return;
-  setSyncing();
-  if (id) { await updateDoc(doc(db, 'users', userKey(), 'jobs', id), data); }
-  else { data.created = Date.now(); await addDoc(colRef('jobs'), data); }
-  closeModal('job');
-};
+    html += `</div>`;
+  });
 
-window.deleteItem = async (type, id) => {
-  if (!confirm('Delete this item?')) return;
-  setSyncing();
-  await deleteDoc(doc(db, 'users', userKey(), type + 's', id));
-};
+  el.innerHTML = html;
+}
 
-window.quoteToJob = async (id) => {
-  const q = quotes.find(x => x.id === id); if (!q) return;
-  const data = { biz: q.biz, name: q.name, address: q.address||'', desc: q.desc||'', amount: q.amount||0, date: new Date().toISOString().split('T')[0], status: 'scheduled', notes: q.notes||'', created: Date.now() };
-  setSyncing();
-  await addDoc(colRef('jobs'), data);
-  alert('Quote converted to job!');
-};
+window.setSchedFilter = function(f) { schedFilter = f; renderSchedule(); }
 
-// ─── WHATSAPP ─────────────────────────────────────────────────────────────────
-window.waQuote = (id) => {
-  const q = quotes.find(x => x.id === id); if (!q) return;
-  const biz = currentBiz === 'lh' ? 'The Little Hedge Trimming Co.' : 'Ben Coletta Landscapes';
-  const msg = `Hi ${q.name},\n\nThank you for getting in touch with ${biz}.\n\nHere is your quote for: ${q.desc||'the work discussed'}\n\nTotal: £${Number(q.amount||0).toLocaleString()}\n\nPlease let me know if you'd like to go ahead.\n\nThanks,\nBen`;
-  window.open('https://wa.me/?text=' + encodeURIComponent(msg));
-};
+function tomorrowStr() {
+  const d = new Date();
+  d.setDate(d.getDate() + 1);
+  return d.toISOString().slice(0, 10);
+}
 
-window.waJob = (id) => {
-  const j = jobs.find(x => x.id === id); if (!j) return;
-  const dateStr = j.date ? new Date(j.date+'T12:00:00').toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'}) : 'TBC';
-  const msg = `Hi ${j.name},\n\nJust confirming your booking for: ${j.desc||'the work discussed'}\n\nDate: ${dateStr}\nTotal: £${Number(j.amount||0).toLocaleString()}\n\nSee you then!\n\nThanks,\nBen`;
-  window.open('https://wa.me/?text=' + encodeURIComponent(msg));
-};
+function sectionHead(title, count) {
+  return `<div class="section-head"><div class="section-title">${title}</div><span class="section-count">${count}</span></div>`;
+}
+function emptyState(icon, title, sub) {
+  return `<div class="empty"><div class="empty-icon">${icon}</div><div class="empty-title">${title}</div><div class="empty-sub">${sub}</div></div>`;
+}
 
-// Close modals on overlay click
-document.querySelectorAll('.modal-overlay').forEach(o => o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); }));
+document.getElementById('editOverlay').addEventListener('click', e => { if (e.target === document.getElementById('editOverlay')) closeEdit(); });
+
+load();
+document.getElementById('f-date').value = today();
+render();
 </script>
 
 </body>
