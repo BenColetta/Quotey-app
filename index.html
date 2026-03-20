@@ -532,7 +532,7 @@ function renderSchedule() {
   const today = new Date(); today.setHours(0,0,0,0);
   const days = [];
   for (let i = 0; i < 7; i++) { const d = new Date(today); d.setDate(today.getDate() + i); days.push(d); }
-  const allJobs = jobs.filter(j => j.biz === currentBiz);
+  const allJobs = jobs;
   el.innerHTML = days.map(day => {
     const ds = day.toISOString().split('T')[0];
     const dayJobs = allJobs.filter(j => j.date === ds);
@@ -543,7 +543,7 @@ function renderSchedule() {
       ${dayJobs.length ? dayJobs.map(j => `
         <div class="card" style="margin-left:0;margin-right:0">
           <div class="card-top">
-            <div><div class="card-name">${j.name}</div><div class="card-meta">${j.desc||''}</div></div>
+            <div><div class="card-name">${j.name}</div><div class="card-meta">${j.desc||''}</div><span class="badge ${j.biz === 'lh' ? 'badge-lh' : 'badge-bcl'}" style="margin-top:4px;display:inline-block">${j.biz === 'lh' ? 'Little Hedge' : 'BCL'}</span></div>
             <div class="card-amount" style="font-size:16px">£${Number(j.amount||0).toLocaleString()}</div>
           </div>
         </div>`).join('') : `<div class="day-empty">Nothing scheduled</div>`}
