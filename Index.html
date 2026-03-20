@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Quotey">
+<meta name="robots" content="noindex, nofollow">
+<title>Quotey</title>
+<style>
+  :root {
+    --primary: #1a1a1a;
+    --accent: #2d6a4f;
+    --accent-light: #40916c;
+    --bg: #f8f8f6;
+    --card: #ffffff;
+    --border: #e8e8e4;
+    --text: #1a1a1a;
+    --text-muted: #888880;
+    --red: #c0392b;
+    --amber: #e67e22;
+    --green: #27ae60;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif; background: var(--bg); color: var(--text); height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+
+/* AUTH SCREEN */
+#auth-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100dvh; padding: 32px 24px; gap: 24px; background: var(–bg); }
+#auth-screen .logo { font-size: 48px; font-weight: 700; letter-spacing: -2px; color: var(–primary); }
+#auth-screen .logo span { color: var(–accent); }
+#auth-screen .subtitle { color: var(–text-muted); font-size: 15px; text-align: center; }
+#auth-screen input { width: 100%; padding: 16px; border: 1.5px solid var(–border); border-radius: 12px; font-size: 17px; background: var(–card); outline: none; text-align: center; letter-spacing: 2px; }
+#auth-screen input:focus { border-color: var(–accent); }
+#auth-screen .btn-primary { width: 100%; padding: 16px; background: var(–accent); color: white; border: none; border-radius: 12px; font-size: 17px; font-weight: 600; cursor: pointer; }
+#auth-screen .error { color: var(–red); font-size: 14px; text-align: center; }
+#auth-screen .setup-link { color: var(–accent); font-size: 14px; text-decoration: underline; cursor: pointer; }
+
+/* FIREBASE SETUP SCREEN */
+#setup-screen { display: none; flex-direction: column; padding: 32px 24px; gap: 16px; height: 100dvh; overflow-y: auto; background: var(–bg); }
+#setup-screen h2 { font-size: 22px; font-weight: 700; }
+#setup-screen p { font-size: 14px; color: var(–text-muted); line-height: 1.6; }
+#setup-screen input { width: 100%; padding: 14px; border: 1.5px solid var(–border); border-radius: 10px; font-size: 14px; background: var(–card); outline: none; font-family: monospace; }
+#setup-screen input:focus { border-color: var(–accent); }
+#setup-screen label { font-size: 13px; font-weight: 600; color: var(–text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+#setup-screen .btn-primary { width: 100%; padding: 16px; background: var(–accent); color: white; border: none; border-radius: 12px; font-size: 17px; font-weight: 600; cursor: pointer; }
+#setup-screen .back-link { color: var(–accent); font-size: 14px; text-decoration: underline; cursor: pointer; text-align: center; }
+
+/* MAIN APP */
+#app { display: none; flex-direction: column; height: 100dvh; }
+
+/* HEADER */
+.header { padding: calc(var(–safe-top) + 12px) 16px 12px; background: var(–card); border-bottom: 1px solid var(–border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+.header-title { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
+.header-biz { font-size: 12px; color: var(–text-muted); margin-top: 1px; }
+.biz-toggle { display: flex; gap: 6px; }
+.biz-btn { padding: 6px 10px; border-radius: 8px; border: 1.5px solid var(–border); font-size: 12px; font-weight: 600; background: var(–bg); cursor: pointer; color: var(–text-muted); }
+.biz-btn.active { background: var(–accent); border-color: var(–accent); color: white; }
+
+/* CONTENT */
+.content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 0 0 16px; }
+
+/* TAB BAR */
+.tab-bar { display: flex; background: var(–card); border-top: 1px solid var(–border); padding-bottom: var(–safe-bottom); flex-shrink: 0; }
+.tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px 4px; gap: 3px; cursor: pointer; border: none; background: none; color: var(–text-muted); font-size: 10px; font-weight: 500; }
+.tab.active { color: var(–accent); }
+.tab svg { width: 22px; height: 22px; }
+
+/* TAB PANELS */
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* CARDS */
+.section-header { padding: 20px 16px 8px; display: flex; justify-content: space-between; align-items: center; }
+.section-title { font-size: 18px; font-weight: 700; }
+.btn-add { background: var(–accent); color: white; border: none; border-radius: 20px; padding: 8px 16px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+
+.card { background: var(–card); border-radius: 12px; margin: 0 16px 10px; padding: 14px 16px; border: 1px solid var(–border); }
+.card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+.card-name { font-size: 16px; font-weight: 600; }
+.card-meta { font-size: 13px; color: var(–text-muted); margin-top: 2px; }
+.card-amount { font-size: 20px; font-weight: 700; color: var(–accent); white-space: nowrap; }
+.card-actions { display: flex; gap: 8px; margin-top: 10px; }
+.badge { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+.badge-pending { background: #fff3e0; color: #e67e22; }
+.badge-sent { background: #e3f2fd; color: #1976d2; }
+.badge-accepted { background: #e8f5e9; color: #27ae60; }
+.badge-declined { background: #fce4ec; color: #c0392b; }
+.badge-scheduled { background: #e8f5e9; color: #27ae60; }
+.badge-completed { background: #ede7f6; color: #6d4c41; }
+.badge-invoice { background: #fff3e0; color: #e67e22; }
+.badge-lh { background: #e3f2fd; color: #1976d2; }
+.badge-bcl { background: #f3e5f5; color: #7b1fa2; }
+
+.btn-sm { padding: 7px 12px; border-radius: 8px; border: 1.5px solid var(–border); font-size: 13px; font-weight: 600; cursor: pointer; background: var(–bg); color: var(–text); }
+.btn-sm.danger { border-color: var(–red); color: var(–red); }
+.btn-sm.primary { border-color: var(–accent); color: var(–accent); }
+.btn-sm.whatsapp { background: #25d366; border-color: #25d366; color: white; }
+
+/* STATS */
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 16px; }
+.stat-card { background: var(–card); border-radius: 12px; padding: 16px; border: 1px solid var(–border); }
+.stat-label { font-size: 12px; color: var(–text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.stat-value { font-size: 26px; font-weight: 700; color: var(–accent); margin-top: 4px; }
+.stat-sub { font-size: 12px; color: var(–text-muted); margin-top: 2px; }
+
+/* SCHEDULE */
+.day-block { margin: 0 16px 12px; }
+.day-label { font-size: 13px; font-weight: 700; color: var(–text-muted); text-transform: uppercase; letter-spacing: 0.5px; padding: 8px 0 4px; }
+.day-empty { font-size: 13px; color: var(–text-muted); padding: 8px 0; font-style: italic; }
+
+/* FORM / MODAL */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: flex-end; }
+.modal-overlay.open { display: flex; }
+.modal { background: var(–card); border-radius: 20px 20px 0 0; padding: 20px 20px calc(var(–safe-bottom) + 20px); width: 100%; max-height: 92dvh; overflow-y: auto; }
+.modal-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
+.form-group { margin-bottom: 14px; }
+.form-label { font-size: 13px; font-weight: 600; color: var(–text-muted); margin-bottom: 5px; display: block; text-transform: uppercase; letter-spacing: 0.3px; }
+.form-input { width: 100%; padding: 12px 14px; border: 1.5px solid var(–border); border-radius: 10px; font-size: 16px; background: var(–bg); outline: none; color: var(–text); }
+.form-input:focus { border-color: var(–accent); }
+select.form-input { appearance: none; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.modal-actions { display: flex; gap: 10px; margin-top: 8px; }
+.btn-cancel { flex: 1; padding: 14px; border: 1.5px solid var(–border); border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; background: var(–bg); }
+.btn-save { flex: 2; padding: 14px; background: var(–accent); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; }
+
+/* SYNC INDICATOR */
+.sync-dot { width: 8px; height: 8px; border-radius: 50%; background: var(–green); display: inline-block; margin-left: 6px; }
+.sync-dot.syncing { background: var(–amber); animation: pulse 1s infinite; }
+.sync-dot.error { background: var(–red); }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+.empty-state { text-align: center; padding: 48px 24px; color: var(–text-muted); }
+.empty-state .icon { font-size: 40px; margin-bottom: 12px; }
+.empty-state p { font-size: 15px; }
+
+.loading { text-align: center; padding: 48px; color: var(–text-muted); font-size: 15px; }
+</style>
+
+</head>
+<body>
+
+<!-- AUTH SCREEN -->
+
+<div id="auth-screen">
+  <div>
+    <div class="logo">Quote<span>y</span></div>
+    <p style="text-align:center;color:var(--text-muted);font-size:13px;margin-top:4px;">Ben Coletta · Trade Job Manager</p>
+  </div>
+  <div style="width:100%;max-width:320px;display:flex;flex-direction:column;gap:12px;">
+    <p class="subtitle">Enter your access password to load your data</p>
+    <input type="password" id="auth-password" placeholder="Password" autocomplete="current-password">
+    <button class="btn-primary" onclick="doLogin()">Open Quotey</button>
+    <p id="auth-error" class="error" style="display:none"></p>
+    <p class="setup-link" onclick="showSetup()" style="text-align:center">First time? Set up Firebase →</p>
+  </div>
+</div>
+
+<!-- SETUP SCREEN -->
+
+<div id="setup-screen">
+  <h2>Firebase Setup</h2>
+  <p>Follow the guide PDF to create your free Firebase project, then paste your details below. You only do this once.</p>
+
+  <div class="form-group">
+    <label>Firebase API Key</label>
+    <input type="text" id="setup-apikey" placeholder="AIzaSy...">
+  </div>
+  <div class="form-group">
+    <label>Firebase Auth Domain</label>
+    <input type="text" id="setup-authdomain" placeholder="your-project.firebaseapp.com">
+  </div>
+  <div class="form-group">
+    <label>Firebase Project ID</label>
+    <input type="text" id="setup-projectid" placeholder="your-project-id">
+  </div>
+  <div class="form-group">
+    <label>Choose a Password for Quotey</label>
+    <input type="password" id="setup-password" placeholder="Something memorable">
+  </div>
+  <button class="btn-primary" onclick="saveSetup()">Save & Continue</button>
+  <p id="setup-error" style="color:var(--red);font-size:14px;text-align:center;display:none"></p>
+  <p class="back-link" onclick="showAuth()">← Back</p>
+</div>
+
+<!-- MAIN APP -->
+
+<div id="app">
+  <div class="header">
+    <div>
+      <div class="header-title">Quotey <span class="sync-dot" id="sync-dot"></span></div>
+      <div class="header-biz" id="header-biz">Loading...</div>
+    </div>
+    <div class="biz-toggle">
+      <button class="biz-btn active" id="btn-lh" onclick="setBiz('lh')">LH</button>
+      <button class="biz-btn" id="btn-bcl" onclick="setBiz('bcl')">BCL</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- QUOTES -->
+    <div class="tab-panel active" id="panel-quotes">
+      <div class="section-header">
+        <span class="section-title">Quotes</span>
+        <button class="btn-add" onclick="openModal('quote')">+ New</button>
+      </div>
+      <div id="quotes-list"></div>
+    </div>
+
+```
+<!-- JOBS -->
+<div class="tab-panel" id="panel-jobs">
+  <div class="section-header">
+    <span class="section-title">Jobs</span>
+    <button class="btn-add" onclick="openModal('job')">+ New</button>
+  </div>
+  <div id="jobs-list"></div>
+</div>
+
+<!-- SCHEDULE -->
+<div class="tab-panel" id="panel-schedule">
+  <div class="section-header">
+    <span class="section-title">This Week</span>
+  </div>
+  <div id="schedule-list"></div>
+</div>
+
+<!-- STATS -->
+<div class="tab-panel" id="panel-stats">
+  <div class="section-header">
+    <span class="section-title">Stats</span>
+  </div>
+  <div class="stats-grid" id="stats-grid"></div>
+</div>
+```
+
+  </div>
+
+  <nav class="tab-bar">
+    <button class="tab active" onclick="switchTab('quotes',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      Quotes
+    </button>
+    <button class="tab" onclick="switchTab('jobs',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+      Jobs
+    </button>
+    <button class="tab" onclick="switchTab('schedule',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Schedule
+    </button>
+    <button class="tab" onclick="switchTab('stats',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Stats
+    </button>
+  </nav>
+</div>
+
+<!-- QUOTE MODAL -->
+
+<div class="modal-overlay" id="modal-quote">
+  <div class="modal">
+    <div class="modal-title" id="quote-modal-title">New Quote</div>
+    <input type="hidden" id="quote-id">
+    <div class="form-group">
+      <label class="form-label">Customer Name</label>
+      <input class="form-input" id="q-name" placeholder="e.g. John Smith">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Address / Area</label>
+      <input class="form-input" id="q-address" placeholder="e.g. Golcar, HD7">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Job Description</label>
+      <input class="form-input" id="q-desc" placeholder="e.g. Hedge trim front & rear">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Amount (£)</label>
+        <input class="form-input" id="q-amount" type="number" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <select class="form-input" id="q-status">
+          <option value="pending">Pending</option>
+          <option value="sent">Sent</option>
+          <option value="accepted">Accepted</option>
+          <option value="declined">Declined</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes</label>
+      <input class="form-input" id="q-notes" placeholder="Optional notes">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('quote')">Cancel</button>
+      <button class="btn-save" onclick="saveQuote()">Save Quote</button>
+    </div>
+  </div>
+</div>
+
+<!-- JOB MODAL -->
+
+<div class="modal-overlay" id="modal-job">
+  <div class="modal">
+    <div class="modal-title" id="job-modal-title">New Job</div>
+    <input type="hidden" id="job-id">
+    <div class="form-group">
+      <label class="form-label">Customer Name</label>
+      <input class="form-input" id="j-name" placeholder="e.g. John Smith">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Address / Area</label>
+      <input class="form-input" id="j-address" placeholder="e.g. Golcar, HD7">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Job Description</label>
+      <input class="form-input" id="j-desc" placeholder="e.g. Hedge trim front & rear">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Amount (£)</label>
+        <input class="form-input" id="j-amount" type="number" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Date</label>
+        <input class="form-input" id="j-date" type="date">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Status</label>
+      <select class="form-input" id="j-status">
+        <option value="scheduled">Scheduled</option>
+        <option value="completed">Completed</option>
+        <option value="invoice">Invoice Sent</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes</label>
+      <input class="form-input" id="j-notes" placeholder="Optional notes">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('job')">Cancel</button>
+      <button class="btn-save" onclick="saveJob()">Save Job</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, doc, getDoc, setDoc, collection, getDocs, addDoc, deleteDoc, updateDoc, query, where, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let db = null;
+let currentBiz = 'lh';
+let quotes = [];
+let jobs = [];
+let unsubQuotes = null;
+let unsubJobs = null;
+
+// ─── CONFIG ──────────────────────────────────────────────────────────────────
+function getConfig() {
+  try { return JSON.parse(localStorage.getItem('quotey_config') || 'null'); } catch { return null; }
+}
+function saveConfig(cfg) { localStorage.setItem('quotey_config', JSON.stringify(cfg)); }
+function getPassword() { return localStorage.getItem('quotey_password') || ''; }
+function savePassword(p) { localStorage.setItem('quotey_password', p); }
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  const cfg = getConfig();
+  const pwd = getPassword();
+  if (!cfg) { showSetupScreen(); return; }
+  if (pwd) { initFirebase(cfg); startApp(); return; }
+  document.getElementById('auth-screen').style.display = 'flex';
+});
+
+function initFirebase(cfg) {
+  const app = initializeApp(cfg);
+  db = getFirestore(app);
+  window._db = db;
+}
+
+window.showSetup = showSetupScreen;
+window.showAuth = () => {
+  document.getElementById('setup-screen').style.display = 'none';
+  document.getElementById('auth-screen').style.display = 'flex';
+};
+
+function showSetupScreen() {
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('setup-screen').style.display = 'flex';
+}
+
+window.saveSetup = async () => {
+  const apiKey = document.getElementById('setup-apikey').value.trim();
+  const authDomain = document.getElementById('setup-authdomain').value.trim();
+  const projectId = document.getElementById('setup-projectid').value.trim();
+  const pwd = document.getElementById('setup-password').value.trim();
+  const err = document.getElementById('setup-error');
+  if (!apiKey || !authDomain || !projectId || !pwd) {
+    err.textContent = 'Please fill in all fields'; err.style.display = 'block'; return;
+  }
+  const cfg = { apiKey, authDomain, projectId, storageBucket: `${projectId}.appspot.com`, messagingSenderId: '000000000', appId: '1:000000000:web:000000000' };
+  saveConfig(cfg);
+  savePassword(pwd);
+  initFirebase(cfg);
+  document.getElementById('setup-screen').style.display = 'none';
+  startApp();
+};
+
+window.doLogin = async () => {
+  const pwd = document.getElementById('auth-password').value.trim();
+  const err = document.getElementById('auth-error');
+  const cfg = getConfig();
+  if (!pwd) return;
+  // Verify by trying to read from firebase with this password as user key
+  initFirebase(cfg);
+  try {
+    const ref = doc(db, 'users', pwd);
+    await getDoc(ref);
+    savePassword(pwd);
+    document.getElementById('auth-screen').style.display = 'none';
+    startApp();
+  } catch(e) {
+    err.textContent = 'Could not connect. Check your password or Firebase setup.';
+    err.style.display = 'block';
+  }
+};
+
+function startApp() {
+  document.getElementById('app').style.display = 'flex';
+  setBiz('lh');
+  loadData();
+}
+
+// ─── BUSINESS ────────────────────────────────────────────────────────────────
+window.setBiz = (biz) => {
+  currentBiz = biz;
+  document.getElementById('btn-lh').classList.toggle('active', biz === 'lh');
+  document.getElementById('btn-bcl').classList.toggle('active', biz === 'bcl');
+  document.getElementById('header-biz').textContent = biz === 'lh' ? 'Little Hedge Trimming Co.' : 'Ben Coletta Landscapes';
+  renderAll();
+};
+
+// ─── FIREBASE HELPERS ────────────────────────────────────────────────────────
+function userKey() { return getPassword(); }
+function colRef(type) { return collection(db, 'users', userKey(), type); }
+
+async function loadData() {
+  setSyncing();
+  if (unsubQuotes) unsubQuotes();
+  if (unsubJobs) unsubJobs();
+  unsubQuotes = onSnapshot(colRef('quotes'), snap => {
+    quotes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderQuotes(); renderStats(); renderSchedule();
+    setSynced();
+  }, () => setSyncError());
+  unsubJobs = onSnapshot(colRef('jobs'), snap => {
+    jobs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderJobs(); renderStats(); renderSchedule();
+    setSynced();
+  }, () => setSyncError());
+}
+
+function setSyncing() { const d = document.getElementById('sync-dot'); d.className = 'sync-dot syncing'; }
+function setSynced() { const d = document.getElementById('sync-dot'); d.className = 'sync-dot'; }
+function setSyncError() { const d = document.getElementById('sync-dot'); d.className = 'sync-dot error'; }
+
+// ─── TAB SWITCHING ───────────────────────────────────────────────────────────
+window.switchTab = (name, el) => {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('panel-' + name).classList.add('active');
+};
+
+// ─── RENDER ──────────────────────────────────────────────────────────────────
+function renderAll() { renderQuotes(); renderJobs(); renderSchedule(); renderStats(); }
+
+function statusBadge(s) {
+  const map = { pending:'badge-pending', sent:'badge-sent', accepted:'badge-accepted', declined:'badge-declined', scheduled:'badge-scheduled', completed:'badge-completed', invoice:'badge-invoice' };
+  return `<span class="badge ${map[s]||''}">${s}</span>`;
+}
+
+function renderQuotes() {
+  const el = document.getElementById('quotes-list');
+  const filtered = quotes.filter(q => q.biz === currentBiz);
+  if (!filtered.length) { el.innerHTML = '<div class="empty-state"><div class="icon">📋</div><p>No quotes yet. Tap + New to add one.</p></div>'; return; }
+  el.innerHTML = filtered.sort((a,b) => b.created - a.created).map(q => `
+    <div class="card">
+      <div class="card-top">
+        <div><div class="card-name">${q.name}</div><div class="card-meta">${q.address||''}</div><div class="card-meta" style="margin-top:3px">${q.desc||''}</div></div>
+        <div style="text-align:right"><div class="card-amount">£${Number(q.amount||0).toLocaleString()}</div>${statusBadge(q.status)}</div>
+      </div>
+      ${q.notes ? `<div class="card-meta" style="margin-top:6px;font-style:italic">${q.notes}</div>` : ''}
+      <div class="card-actions">
+        <button class="btn-sm primary" onclick="editQuote('${q.id}')">Edit</button>
+        <button class="btn-sm whatsapp" onclick="waQuote('${q.id}')">WhatsApp</button>
+        <button class="btn-sm" onclick="quoteToJob('${q.id}')">→ Job</button>
+        <button class="btn-sm danger" onclick="deleteItem('quote','${q.id}')">Delete</button>
+      </div>
+    </div>`).join('');
+}
+
+function renderJobs() {
+  const el = document.getElementById('jobs-list');
+  const filtered = jobs.filter(j => j.biz === currentBiz);
+  if (!filtered.length) { el.innerHTML = '<div class="empty-state"><div class="icon">🔧</div><p>No jobs yet.</p></div>'; return; }
+  el.innerHTML = filtered.sort((a,b) => (b.date||'') > (a.date||'') ? 1 : -1).map(j => `
+    <div class="card">
+      <div class="card-top">
+        <div><div class="card-name">${j.name}</div><div class="card-meta">${j.address||''}</div><div class="card-meta" style="margin-top:3px">${j.desc||''}</div></div>
+        <div style="text-align:right"><div class="card-amount">£${Number(j.amount||0).toLocaleString()}</div>${statusBadge(j.status)}</div>
+      </div>
+      ${j.date ? `<div class="card-meta" style="margin-top:6px">📅 ${new Date(j.date+'T12:00:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})}</div>` : ''}
+      ${j.notes ? `<div class="card-meta" style="margin-top:4px;font-style:italic">${j.notes}</div>` : ''}
+      <div class="card-actions">
+        <button class="btn-sm primary" onclick="editJob('${j.id}')">Edit</button>
+        <button class="btn-sm whatsapp" onclick="waJob('${j.id}')">WhatsApp</button>
+        <button class="btn-sm danger" onclick="deleteItem('job','${j.id}')">Delete</button>
+      </div>
+    </div>`).join('');
+}
+
+function renderSchedule() {
+  const el = document.getElementById('schedule-list');
+  const today = new Date(); today.setHours(0,0,0,0);
+  const days = [];
+  for (let i = 0; i < 7; i++) { const d = new Date(today); d.setDate(today.getDate() + i); days.push(d); }
+  const allJobs = jobs.filter(j => j.biz === currentBiz);
+  el.innerHTML = days.map(day => {
+    const ds = day.toISOString().split('T')[0];
+    const dayJobs = allJobs.filter(j => j.date === ds);
+    const label = day.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short' });
+    const isToday = day.getTime() === today.getTime();
+    return `<div class="day-block">
+      <div class="day-label" style="${isToday ? 'color:var(--accent)' : ''}">${isToday ? '▶ ' : ''}${label}</div>
+      ${dayJobs.length ? dayJobs.map(j => `
+        <div class="card" style="margin-left:0;margin-right:0">
+          <div class="card-top">
+            <div><div class="card-name">${j.name}</div><div class="card-meta">${j.desc||''}</div></div>
+            <div class="card-amount" style="font-size:16px">£${Number(j.amount||0).toLocaleString()}</div>
+          </div>
+        </div>`).join('') : `<div class="day-empty">Nothing scheduled</div>`}
+    </div>`;
+  }).join('');
+}
+
+function renderStats() {
+  const el = document.getElementById('stats-grid');
+  const bQuotes = quotes.filter(q => q.biz === currentBiz);
+  const bJobs = jobs.filter(j => j.biz === currentBiz);
+  const totalQuoted = bQuotes.reduce((s,q) => s + Number(q.amount||0), 0);
+  const accepted = bQuotes.filter(q => q.status === 'accepted');
+  const acceptedVal = accepted.reduce((s,q) => s + Number(q.amount||0), 0);
+  const completedJobs = bJobs.filter(j => j.status === 'completed');
+  const completedVal = completedJobs.reduce((s,j) => s + Number(j.amount||0), 0);
+  const scheduled = bJobs.filter(j => j.status === 'scheduled');
+  el.innerHTML = `
+    <div class="stat-card"><div class="stat-label">Total Quoted</div><div class="stat-value">£${totalQuoted.toLocaleString()}</div><div class="stat-sub">${bQuotes.length} quotes</div></div>
+    <div class="stat-card"><div class="stat-label">Accepted</div><div class="stat-value">£${acceptedVal.toLocaleString()}</div><div class="stat-sub">${accepted.length} quotes</div></div>
+    <div class="stat-card"><div class="stat-label">Completed</div><div class="stat-value">£${completedVal.toLocaleString()}</div><div class="stat-sub">${completedJobs.length} jobs</div></div>
+    <div class="stat-card"><div class="stat-label">Upcoming</div><div class="stat-value">${scheduled.length}</div><div class="stat-sub">scheduled jobs</div></div>`;
+}
+
+// ─── MODALS ──────────────────────────────────────────────────────────────────
+window.openModal = (type) => {
+  if (type === 'quote') {
+    document.getElementById('quote-modal-title').textContent = 'New Quote';
+    document.getElementById('quote-id').value = '';
+    ['q-name','q-address','q-desc','q-amount','q-notes'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('q-status').value = 'pending';
+  } else {
+    document.getElementById('job-modal-title').textContent = 'New Job';
+    document.getElementById('job-id').value = '';
+    ['j-name','j-address','j-desc','j-amount','j-notes'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('j-date').value = new Date().toISOString().split('T')[0];
+    document.getElementById('j-status').value = 'scheduled';
+  }
+  document.getElementById('modal-' + type).classList.add('open');
+};
+
+window.closeModal = (type) => document.getElementById('modal-' + type).classList.remove('open');
+
+window.editQuote = (id) => {
+  const q = quotes.find(x => x.id === id); if (!q) return;
+  document.getElementById('quote-modal-title').textContent = 'Edit Quote';
+  document.getElementById('quote-id').value = id;
+  document.getElementById('q-name').value = q.name || '';
+  document.getElementById('q-address').value = q.address || '';
+  document.getElementById('q-desc').value = q.desc || '';
+  document.getElementById('q-amount').value = q.amount || '';
+  document.getElementById('q-status').value = q.status || 'pending';
+  document.getElementById('q-notes').value = q.notes || '';
+  document.getElementById('modal-quote').classList.add('open');
+};
+
+window.editJob = (id) => {
+  const j = jobs.find(x => x.id === id); if (!j) return;
+  document.getElementById('job-modal-title').textContent = 'Edit Job';
+  document.getElementById('job-id').value = id;
+  document.getElementById('j-name').value = j.name || '';
+  document.getElementById('j-address').value = j.address || '';
+  document.getElementById('j-desc').value = j.desc || '';
+  document.getElementById('j-amount').value = j.amount || '';
+  document.getElementById('j-date').value = j.date || '';
+  document.getElementById('j-status').value = j.status || 'scheduled';
+  document.getElementById('j-notes').value = j.notes || '';
+  document.getElementById('modal-job').classList.add('open');
+};
+
+// ─── SAVE ─────────────────────────────────────────────────────────────────────
+window.saveQuote = async () => {
+  const id = document.getElementById('quote-id').value;
+  const data = { biz: currentBiz, name: document.getElementById('q-name').value.trim(), address: document.getElementById('q-address').value.trim(), desc: document.getElementById('q-desc').value.trim(), amount: document.getElementById('q-amount').value, status: document.getElementById('q-status').value, notes: document.getElementById('q-notes').value.trim() };
+  if (!data.name) return;
+  setSyncing();
+  if (id) { await updateDoc(doc(db, 'users', userKey(), 'quotes', id), data); }
+  else { data.created = Date.now(); await addDoc(colRef('quotes'), data); }
+  closeModal('quote');
+};
+
+window.saveJob = async () => {
+  const id = document.getElementById('job-id').value;
+  const data = { biz: currentBiz, name: document.getElementById('j-name').value.trim(), address: document.getElementById('j-address').value.trim(), desc: document.getElementById('j-desc').value.trim(), amount: document.getElementById('j-amount').value, date: document.getElementById('j-date').value, status: document.getElementById('j-status').value, notes: document.getElementById('j-notes').value.trim() };
+  if (!data.name) return;
+  setSyncing();
+  if (id) { await updateDoc(doc(db, 'users', userKey(), 'jobs', id), data); }
+  else { data.created = Date.now(); await addDoc(colRef('jobs'), data); }
+  closeModal('job');
+};
+
+window.deleteItem = async (type, id) => {
+  if (!confirm('Delete this item?')) return;
+  setSyncing();
+  await deleteDoc(doc(db, 'users', userKey(), type + 's', id));
+};
+
+window.quoteToJob = async (id) => {
+  const q = quotes.find(x => x.id === id); if (!q) return;
+  const data = { biz: q.biz, name: q.name, address: q.address||'', desc: q.desc||'', amount: q.amount||0, date: new Date().toISOString().split('T')[0], status: 'scheduled', notes: q.notes||'', created: Date.now() };
+  setSyncing();
+  await addDoc(colRef('jobs'), data);
+  alert('Quote converted to job!');
+};
+
+// ─── WHATSAPP ─────────────────────────────────────────────────────────────────
+window.waQuote = (id) => {
+  const q = quotes.find(x => x.id === id); if (!q) return;
+  const biz = currentBiz === 'lh' ? 'The Little Hedge Trimming Co.' : 'Ben Coletta Landscapes';
+  const msg = `Hi ${q.name},\n\nThank you for getting in touch with ${biz}.\n\nHere is your quote for: ${q.desc||'the work discussed'}\n\nTotal: £${Number(q.amount||0).toLocaleString()}\n\nPlease let me know if you'd like to go ahead.\n\nThanks,\nBen`;
+  window.open('https://wa.me/?text=' + encodeURIComponent(msg));
+};
+
+window.waJob = (id) => {
+  const j = jobs.find(x => x.id === id); if (!j) return;
+  const dateStr = j.date ? new Date(j.date+'T12:00:00').toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'}) : 'TBC';
+  const msg = `Hi ${j.name},\n\nJust confirming your booking for: ${j.desc||'the work discussed'}\n\nDate: ${dateStr}\nTotal: £${Number(j.amount||0).toLocaleString()}\n\nSee you then!\n\nThanks,\nBen`;
+  window.open('https://wa.me/?text=' + encodeURIComponent(msg));
+};
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(o => o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); }));
+</script>
+
+</body>
+</html>
