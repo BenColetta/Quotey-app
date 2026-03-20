@@ -701,7 +701,7 @@ function quoteCard(q, todayStr, isLost=false) {
     <div style="background:var(--purple-light);border:1px solid var(--purple-border);border-radius:var(--radius-sm);padding:10px 13px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;">
       <div>
         <div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--purple);font-weight:500;margin-bottom:3px">🗓 Quote Visit</div>
-        <div style="font-family:'Instrument Serif',serif;font-size:18px;color:var(--purple)">${fmtDate(q.visitdate)}${q.visittime ? `<span style="font-size:13px;margin-left:8px">${q.visittime}</span>` : ''}</div>
+        <div style="font-family:'Instrument Serif',serif;font-size:18px;color:var(--purple)">${fmtDate(q.visitdate)}${q.visittime ? `<span style="font-size:18px;margin-left:8px">${q.visittime}</span>` : ''}</div>
       </div>
     </div>` : '';
   return `<div class="card">
@@ -751,7 +751,7 @@ function jobCard(j, todayStr) {
     <div style="background:${overdue ? 'var(--red-light)' : j.complete ? 'var(--surface)' : 'var(--off)'};border:1px solid ${overdue ? 'var(--red-border)' : 'var(--border)'};border-radius:var(--radius-sm);padding:10px 13px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;">
       <div>
         <div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:${overdue ? 'var(--red)' : 'var(--text3)'};font-weight:500;margin-bottom:3px">${overdue ? '⚠ Start date passed' : j.complete ? 'Started' : '🗓 Scheduled Start'}</div>
-        <div style="font-family:'Instrument Serif',serif;font-size:18px;color:${overdue ? 'var(--red)' : 'var(--text)'}">${fmtDate(j.startdate)}${j.starttime ? `<span style="font-size:13px;color:var(--text2);margin-left:8px">${j.starttime}</span>` : ''}</div>
+        <div style="font-family:'Instrument Serif',serif;font-size:18px;color:${overdue ? 'var(--red)' : 'var(--text)'}">${fmtDate(j.startdate)}${j.starttime ? `<span style="font-size:18px;color:var(--text2);margin-left:8px">${j.starttime}</span>` : ''}</div>
       </div>
       ${!j.complete ? `<div style="font-size:22px">${overdue ? '🔴' : '🟢'}</div>` : ''}
     </div>` : '';
