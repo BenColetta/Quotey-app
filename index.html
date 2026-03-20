@@ -525,7 +525,7 @@ textarea.field-input { resize: none; min-height: 80px; line-height: 1.6; }
 </div>
 
 <input type="file" id="photoInputCamera" accept="image/*" capture="environment" style="display:none" onchange="handlePhoto(event)">
-<input type="file" id="photoInputLibrary" accept="image/*" style="display:none" onchange="handlePhoto(event)">
+<input type="file" id="photoInputLibrary" accept="image/*" multiple style="display:none" onchange="handlePhoto(event)">
 
 <div class="modal" id="photoPickerModal">
   <div class="modal-box">
@@ -1047,19 +1047,23 @@ window.addPhoto = function(id) { photoTarget = id; document.getElementById('phot
 window.triggerPhotoSource = function(source) { closePhotoPicker(); setTimeout(() => { if (source === 'camera') document.getElementById('photoInputCamera').click(); else document.getElementById('photoInputLibrary').click(); }, 200); }
 window.closePhotoPicker = function() { document.getElementById('photoPickerModal').classList.remove('open'); }
 window.handlePhoto = function(e) {
-  const file = e.target.files[0]; if (!file || !photoTarget) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    const img = new Image();
-    img.onload = () => {
-      const canvas = document.createElement('canvas'); const max = 900; let w = img.width, h = img.height;
-      if (w > max) { h = Math.round(h*max/w); w = max; } if (h > max) { w = Math.round(w*max/h); h = max; }
-      canvas.width = w; canvas.height = h; canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-      const id = photoTarget; const item = db.quotes.find(q=>q.id===id) || db.jobs.find(j=>j.id===id);
-      if (!item) return; if (!item.photos) item.photos = [];
-      item.photos.push(canvas.toDataURL('image/jpeg', 0.75)); save(); render();
-    }; img.src = ev.target.result;
-  }; reader.readAsDataURL(file); e.target.value = '';
+  const files = Array.from(e.target.files);
+  if (!files.length || !photoTarget) return;
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas'); const max = 900; let w = img.width, h = img.height;
+        if (w > max) { h = Math.round(h*max/w); w = max; } if (h > max) { w = Math.round(w*max/h); h = max; }
+        canvas.width = w; canvas.height = h; canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        const id = photoTarget; const item = db.quotes.find(q=>q.id===id) || db.jobs.find(j=>j.id===id);
+        if (!item) return; if (!item.photos) item.photos = [];
+        item.photos.push(canvas.toDataURL('image/jpeg', 0.75)); save(); render();
+      }; img.src = ev.target.result;
+    }; reader.readAsDataURL(file);
+  });
+  e.target.value = '';
 }
 function photosHtml(item) { if (!item.photos || item.photos.length === 0) return ''; return `<div class="card-photos">${item.photos.map((p,i) => `<img class="photo-thumb" src="${p}" onclick="openPV('${item.id}',${i})">`).join('')}</div>`; }
 window.openPV = function(id, idx) { const item = db.quotes.find(q=>q.id===id) || db.jobs.find(j=>j.id===id); if (!item || !item.photos) return; document.getElementById('pvImg').src = item.photos[idx]; document.getElementById('photoViewer').classList.add('open'); }
